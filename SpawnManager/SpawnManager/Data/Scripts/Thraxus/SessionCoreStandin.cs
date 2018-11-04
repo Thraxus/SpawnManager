@@ -2,7 +2,7 @@
 // ReSharper disable once ClassNeverInstantiated.Global
 namespace SpawnManager
 {
-	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
+	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
 	public class SessionCoreStandin: MySessionComponentBase
 	{
 		private bool _initialized;
@@ -17,14 +17,12 @@ namespace SpawnManager
 
 		private void Initialize()
 		{
-			//Core.Register();
 			_initialized = true;
 		}
 
 		protected override void UnloadData()
 		{
-			//Core.Close();
-			//Core.Close();
+
 		}
 	}
 }
