@@ -16,7 +16,7 @@ namespace SpawnManager.Support
 		{
 			CubeBlockProcessing.Clear();
 			PbPrograms.Clear();
-			Core.GeneralLog.WriteToLog("CubeProcessing", "CubeProcessing done processing...");
+			Core.GeneralLog.WriteToLog("CubeProcessing", "Done processing...");
 		}
 
 		public static readonly Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>> CubeBlockProcessing = new Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>>

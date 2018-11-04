@@ -251,7 +251,7 @@ namespace SpawnManager.Support
 			}
 
 			_registered = true;
-			Core.GeneralLog.WriteToLog("Definitions", "Definitions built...");
+			Core.GeneralLog.WriteToLog("Definitions", "Defined!...");
 		}
 
 		public static void Close()
@@ -269,6 +269,7 @@ namespace SpawnManager.Support
 			CustomPrefabConfigurations?.Clear();
 			RestockDefinitions?.Clear();
 			MaxInventoryVolume?.Clear();
+			Core.GeneralLog.WriteToLog("Definitions", "Undefined... :(");
 		}
 	}
 }

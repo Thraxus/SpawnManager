@@ -17,7 +17,7 @@ namespace SpawnManager.Networking
 		{
 			MyAPIGateway.Multiplayer.RegisterMessageHandler(Core.NetworkId, MessageHandler);
 			MyAPIGateway.Utilities.MessageEntered += ChatMessageHandler;
-			Core.GeneralLog.WriteToLog("Messaging", "Messaging ready...");
+			Core.GeneralLog.WriteToLog("Messaging", "Ready...");
 		}
 
 		public static void Close()
@@ -28,7 +28,7 @@ namespace SpawnManager.Networking
 				_playerCache = null;
 			}
 			MyAPIGateway.Utilities.MessageEntered -= ChatMessageHandler;
-			Core.GeneralLog.WriteToLog("Messaging", "Messaging closed...");
+			Core.GeneralLog.WriteToLog("Messaging", "Closed...");
 		}
 
 		private static void MessageHandler(byte[] bytes)
