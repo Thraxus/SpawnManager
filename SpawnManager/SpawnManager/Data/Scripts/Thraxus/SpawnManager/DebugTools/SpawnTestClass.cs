@@ -7,7 +7,7 @@ namespace SpawnManager.SpawnManager
     {
         public static void SpawnTestCase(string s)
         {
-			MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
+	        MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
 			
 			initialMatrixD.Translation += initialMatrixD.Forward * 250;
 			SpawnPrefab("SubGridTestHell", initialMatrixD);
@@ -22,16 +22,18 @@ namespace SpawnManager.SpawnManager
 
 		private static void SpawnPrefab(string prefab, MatrixD position)
         {
-	        PrefabSpawner.SpawnPrefab(prefab, position); 
+	        Options options = new Options { Restock = true };
+			PrefabSpawner.SpawnPrefab(prefab, position, options); 
 		}
 
 	    public static void SpawnPrefab(string prefab)
 	    {
-		    if (!prefab.StartsWith("/spawner")) return;
-		    const string prefix = "/spawner spawnprefab ";
-		    MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
+		    const string prefix = "spawnprefab";
+			if (!prefab.StartsWith(prefix)) return;
+		    Options options = new Options { Restock = true };
+			MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
 		    initialMatrixD.Translation += initialMatrixD.Forward * 250;
-			PrefabSpawner.SpawnPrefab(prefab.Replace(prefix, "").Trim(), initialMatrixD);
+			PrefabSpawner.SpawnPrefab(prefab.Replace(prefix, "").Trim(), initialMatrixD, options);
 	    }
 	}
 }

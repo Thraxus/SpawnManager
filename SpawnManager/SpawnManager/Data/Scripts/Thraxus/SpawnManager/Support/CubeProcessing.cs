@@ -16,6 +16,7 @@ namespace SpawnManager.SpawnManager
 		{
 			CubeBlockProcessing.Clear();
 			PbPrograms.Clear();
+			Core.GeneralLog.WriteToLog("CubeProcessing", "CubeProcessing done processing...");
 		}
 
 		public static readonly Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>> CubeBlockProcessing = new Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>>
@@ -103,7 +104,8 @@ namespace SpawnManager.SpawnManager
 			if (!options.Restock) return;
 			try
 			{
-				((MyObjectBuilder_CargoContainer)block).Inventory.Clear();
+				//((MyObjectBuilder_CargoContainer)block).Inventory.Clear();
+				ClearInventory(block.ComponentContainer);
 			}
 			catch (Exception e)
 			{
@@ -115,7 +117,7 @@ namespace SpawnManager.SpawnManager
 		{
 			try
 			{
-
+				
 			}
 			catch (Exception e)
 			{
@@ -287,6 +289,22 @@ namespace SpawnManager.SpawnManager
 			catch (Exception e)
 			{
 				Core.GeneralLog.WriteToLog("ProcessWeaponRestocking", $"Exception! {e}");
+			}
+		}
+
+		private static void ClearInventory(MyObjectBuilder_ComponentContainer componentContainer)
+		{
+			try
+			{
+				foreach (MyObjectBuilder_ComponentContainer.ComponentData componentData in componentContainer.Components)
+				{
+					if (componentData.TypeId != "MyInventoryBase") continue;
+					((MyObjectBuilder_Inventory)componentData.Component)?.Items.Clear();
+				}
+			}
+			catch (Exception e)
+			{
+				Core.GeneralLog.WriteToLog("ClearInventory", $"Exception! {e}");
 			}
 		}
 

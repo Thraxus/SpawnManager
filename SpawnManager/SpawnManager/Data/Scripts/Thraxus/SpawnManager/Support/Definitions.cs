@@ -250,24 +250,24 @@ namespace SpawnManager.SpawnManager
 			}
 
 			_registered = true;
-
+			Core.GeneralLog.WriteToLog("Definitions", "Definitions built...");
 		}
 
 		public static void Close()
 		{
-			AmmoMagazineDefinitions.Clear();
-			ComponentDefinitions.Clear();
-			GasContainerDefinitions.Clear();
-			IngotDefinitions.Clear();
-			OreDefinitions.Clear();
-			OxygenContainerDefinitions.Clear();
-			PhysicalGunDefinitions.Clear();
-			PirateAntennaDefinitions.Clear();
-			SpawnGroupDefinitions.Clear();
-			DictionaryBuilder.Clear();
-			CustomPrefabConfigurations.Clear();
-			RestockDefinitions.Clear();
-			MaxInventoryVolume.Clear();
+			AmmoMagazineDefinitions?.Clear();
+			ComponentDefinitions?.Clear();
+			GasContainerDefinitions?.Clear();
+			IngotDefinitions?.Clear();
+			OreDefinitions?.Clear();
+			OxygenContainerDefinitions?.Clear();
+			PhysicalGunDefinitions?.Clear();
+			PirateAntennaDefinitions?.Clear();
+			SpawnGroupDefinitions?.Clear();
+			DictionaryBuilder?.Clear();
+			CustomPrefabConfigurations?.Clear();
+			RestockDefinitions?.Clear();
+			MaxInventoryVolume?.Clear();
 		}
 	}
 }

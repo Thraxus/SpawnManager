@@ -1,4 +1,5 @@
 ﻿using Sandbox.ModAPI;
+using SpawnManager.Networking;
 using SpawnManager.Utilities;
 using VRage.Game.Components;
 
@@ -14,7 +15,8 @@ namespace SpawnManager.SpawnManager
 		public const ushort NetworkId = 11487;
 
 		// Fields
-		private static bool _registered;
+		private static bool _registerEarly;
+		private static bool _registerLate;
 
 		// Properties
 		public static bool IsServer => MyAPIGateway.Multiplayer.IsServer;
@@ -23,35 +25,53 @@ namespace SpawnManager.SpawnManager
 
 		public static Log ProfilerLog { get; private set; }
 
-		private static void Register()
+		private void RegisterEarly()
 		{
-			if (!IsServer || _registered) return;
+			if (!IsServer || _registerEarly) return;
 			GeneralLog = new Log(GeneralLogName);
 			ProfilerLog = new Log(ProfilerLogName);
+			Messaging.Register();
 			GameSettings.Register();
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.BeforeSimulation));
+			GeneralLog.WriteToLog("Core", $"RegisterEarly Complete... {UpdateOrder}");
+			_registerEarly = true;
+		}
+
+		private void RegisterLate()
+		{
+			if (!IsServer || _registerLate) return;
 			Definitions.Register();
 			Drones.Register();
-			_registered = true;
+			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
+			GeneralLog.WriteToLog("Core", $"RegisterLate Complete... {UpdateOrder}");
+			_registerLate = true;
 		}
 
 		private static void Close()
 		{
 			if (!IsServer) return;
+			GeneralLog.WriteToLog("Core", "Unloading...");
 			CubeProcessing.Close();
 			Drones.Close();
 			Definitions.Close();
+			Messaging.Close();
 			ProfilerLog.Close();
 			GeneralLog.Close();
 		}
 
-		/// <inheritdoc />
 		public override void BeforeStart()
 		{
 			base.BeforeStart();
-			if (!IsServer || _registered) return;
-			Register();
+			if (!IsServer || _registerEarly) return;
+			RegisterEarly();
 		}
 
+		public override void UpdateBeforeSimulation()
+		{
+			base.UpdateBeforeSimulation();
+			if (!IsServer || _registerLate) return;
+			RegisterLate();
+		}
 
 		protected override void UnloadData()
 		{

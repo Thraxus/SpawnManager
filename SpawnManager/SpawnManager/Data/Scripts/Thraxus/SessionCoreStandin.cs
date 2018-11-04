@@ -1,9 +1,8 @@
 ﻿using VRage.Game.Components;
-
+// ReSharper disable once ClassNeverInstantiated.Global
 namespace SpawnManager
 {
 	[MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation)]
-	// ReSharper disable once ClassNeverInstantiated.Global
 	public class SessionCoreStandin: MySessionComponentBase
 	{
 		private bool _initialized;
@@ -18,12 +17,13 @@ namespace SpawnManager
 
 		private void Initialize()
 		{
-			//Core.Initialize();
+			//Core.Register();
 			_initialized = true;
 		}
 
 		protected override void UnloadData()
 		{
+			//Core.Close();
 			//Core.Close();
 		}
 	}

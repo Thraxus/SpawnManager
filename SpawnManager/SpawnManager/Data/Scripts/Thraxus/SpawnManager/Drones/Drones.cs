@@ -56,12 +56,14 @@ namespace SpawnManager.SpawnManager
 	        if (_registered) return;
             MyAPIGateway.Entities.OnEntityAdd += OnEntityAdd;
 	        _registered = true;
-        }
+	        Core.GeneralLog.WriteToLog("Drones", "Drones online...");
+		}
 
         public static void Close()
         {
             MyAPIGateway.Entities.OnEntityAdd -= OnEntityAdd;
-        }
+	        Core.GeneralLog.WriteToLog("Drones", "Drones offline...");
+		}
 
     }
 }

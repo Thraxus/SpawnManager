@@ -17,8 +17,6 @@ namespace SpawnManager.SpawnManager
 			if (options == null)
 				options = new Options();
 
-			options.Restock = true; // Debug only, remove for production
-
 			List<MyObjectBuilder_EntityBase> tempList = new List<MyObjectBuilder_EntityBase>();
 
 			try

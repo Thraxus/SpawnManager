@@ -47,7 +47,7 @@ namespace SpawnManager.Networking
 			string actionText = null;
 
 			if (chatCommand.Length > 2)
-				actionText = chatCommand[2];
+				actionText = message.Replace(SpawnManagerChatCommandPrefix, "").Trim();
 
 			if (ChatAction.TryGetValue(chatCommand[1], out action))
 				action?.Invoke(actionText);
