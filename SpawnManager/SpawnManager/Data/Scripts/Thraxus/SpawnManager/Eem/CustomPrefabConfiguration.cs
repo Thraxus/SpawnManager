@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Eem
 {
     public struct CustomPrefabConfiguration
     {

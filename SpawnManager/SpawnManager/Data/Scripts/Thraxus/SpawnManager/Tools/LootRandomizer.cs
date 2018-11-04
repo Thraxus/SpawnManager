@@ -2,7 +2,7 @@
 using Sandbox.Definitions;
 using VRage.Collections;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Tools
 {
 	public class LootRandomizer
 	{

@@ -6,7 +6,7 @@ using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Drones
 {
     public static class Drones
     {

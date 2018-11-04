@@ -1,9 +1,10 @@
 ﻿using Sandbox.ModAPI;
 using SpawnManager.Networking;
+using SpawnManager.Support;
 using SpawnManager.Utilities;
 using VRage.Game.Components;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager
 {
 	// ReSharper disable once ClassNeverInstantiated.Global
 	[MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]
@@ -41,7 +42,7 @@ namespace SpawnManager.SpawnManager
 		{
 			if (!IsServer || _registerLate) return;
 			Definitions.Register();
-			Drones.Register();
+			Drones.Drones.Register();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			GeneralLog.WriteToLog("Core", $"RegisterLate Complete... {UpdateOrder}");
 			_registerLate = true;
@@ -52,7 +53,7 @@ namespace SpawnManager.SpawnManager
 			if (!IsServer) return;
 			GeneralLog.WriteToLog("Core", "Unloading...");
 			CubeProcessing.Close();
-			Drones.Close();
+			Drones.Drones.Close();
 			Definitions.Close();
 			Messaging.Close();
 			ProfilerLog.Close();

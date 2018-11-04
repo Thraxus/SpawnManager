@@ -4,6 +4,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
+using SpawnManager.Eem;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -13,7 +14,7 @@ using VRageMath;
 // ReSharper disable CollectionNeverQueried.Global
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Support
 {
 	public static class Definitions
 	{

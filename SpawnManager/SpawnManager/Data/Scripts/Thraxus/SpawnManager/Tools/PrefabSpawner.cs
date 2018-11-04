@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.ModAPI;
+using SpawnManager.Support;
 using VRage;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRageMath;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Tools
 {
 	public static class PrefabSpawner
 	{ // Remaarn#0887 [Discord] is responsible for the orientation / location matrix code.  Made my life a lot easier!  Thanks!

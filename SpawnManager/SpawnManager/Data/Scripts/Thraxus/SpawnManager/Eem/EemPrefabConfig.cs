@@ -1,7 +1,7 @@
 ﻿using System;
-using SpawnManager.SpawnManager;
+using SpawnManager.Support;
 
-namespace SpawnManager.Models
+namespace SpawnManager.Eem
 {
     public static class EemPrefabConfig
     {

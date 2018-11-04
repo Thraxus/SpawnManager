@@ -1,6 +1,6 @@
 ﻿using Sandbox.ModAPI;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Support
 {
     public static class GameSettings
     {

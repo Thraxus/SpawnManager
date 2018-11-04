@@ -7,7 +7,7 @@ using VRage.Game.Entity;
 using VRage.Utils;
 using VRageMath;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Tools
 {
     public class SpawnPoint
     {

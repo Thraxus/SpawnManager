@@ -1,7 +1,7 @@
 ﻿using VRage;
 using VRage.Game;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Support
 {
 	public class Options
 	{

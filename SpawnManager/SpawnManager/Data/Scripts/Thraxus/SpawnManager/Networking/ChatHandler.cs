@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sandbox.ModAPI;
-using SpawnManager.SpawnManager;
+using SpawnManager.DebugTools;
 using VRage.Game.ModAPI;
 
 namespace SpawnManager.Networking

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using SpawnManager.SpawnManager;
 
 namespace SpawnManager.Utilities
 {

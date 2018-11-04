@@ -1,7 +1,9 @@
 ﻿using Sandbox.ModAPI;
+using SpawnManager.Support;
+using SpawnManager.Tools;
 using VRageMath;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.DebugTools
 {
     public static class SpawnTestClass
     {

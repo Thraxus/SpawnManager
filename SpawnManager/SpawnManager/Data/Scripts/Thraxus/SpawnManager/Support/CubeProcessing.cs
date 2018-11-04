@@ -8,7 +8,7 @@ using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 
-namespace SpawnManager.SpawnManager
+namespace SpawnManager.Support
 {
 	public static class CubeProcessing
 	{
