@@ -142,34 +142,34 @@ namespace SpawnManager.Support
 
 		private static List<MyDefinitionId> GetReactorFuelList(MyObjectBuilder_CubeBlock cube)
 		{
-			List<MyDefinitionId> ammoSubTypeIds = new List<MyDefinitionId>();
+			List<MyDefinitionId> fuelIds = new List<MyDefinitionId>();
 			try
 			{
 				MyReactorDefinition reactorDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(cube.GetId()) as MyReactorDefinition;
-				if (reactorDefinition == null) return ammoSubTypeIds;
-				ammoSubTypeIds.Add(reactorDefinition.FuelId);
+				if (reactorDefinition == null) return fuelIds;
+				fuelIds.Add(reactorDefinition.FuelId);
 			}
 			catch (Exception e)
 			{
 				Core.GeneralLog.WriteToLog("GetReactorFuelList", $"Exception getting reactor fuel list! {e}");
 			}
-			return ammoSubTypeIds;
+			return fuelIds;
 		}
 
 		private static List<MyDefinitionId> GetParachuteList(MyObjectBuilder_CubeBlock cube)
 		{
-			List<MyDefinitionId> ammoSubTypeIds = new List<MyDefinitionId>();
+			List<MyDefinitionId> parachuteIds = new List<MyDefinitionId>();
 			try
 			{
 				MyParachuteDefinition parachuteDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(cube.GetId()) as MyParachuteDefinition;
-				if (parachuteDefinition == null) return ammoSubTypeIds;
-				ammoSubTypeIds.Add(parachuteDefinition.MaterialDefinitionId);
+				if (parachuteDefinition == null) return parachuteIds;
+				parachuteIds.Add(parachuteDefinition.MaterialDefinitionId);
 			}
 			catch (Exception e)
 			{
 				Core.GeneralLog.WriteToLog("GetParachuteList", $"Exception getting parachute list! {e}");
 			}
-			return ammoSubTypeIds;
+			return parachuteIds;
 		}
 
 		private static List<MyDefinitionId> GetWeaponAmmoList(MyObjectBuilder_CubeBlock cube)
