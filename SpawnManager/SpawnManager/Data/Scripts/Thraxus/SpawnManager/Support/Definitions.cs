@@ -251,7 +251,7 @@ namespace SpawnManager.Support
 			}
 
 			_registered = true;
-			Core.GeneralLog.WriteToLog("Definitions", "Defined!...");
+			Core.GeneralLog.WriteToLog("Definitions", "Defined!... :)");
 		}
 
 		public static void Close()

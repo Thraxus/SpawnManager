@@ -128,6 +128,7 @@
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\PrefabSpawner.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\SpawnPoint.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\DebugTools\SpawnTestClass.cs" />
+    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\WeaponSwapper.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Log.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Profiler.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Queue.cs" />
