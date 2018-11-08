@@ -13,6 +13,7 @@ namespace SpawnManager.Networking
 		private const string ShowProfilingLogPrefix = "showprofilinglog";
 		private const string ShowGeneralLogPrefix = "showgenerallog";
 		private const string SpawnTestCase = "spawntest";
+		private const string SpawnModdedTestCase = "spawnmodded";
 		private const string SpawnPrefabPrefix = "spawnprefab";
 
 		private static readonly Dictionary<string, Action<string>> ChatAction = new Dictionary<string, Action<string>>
@@ -22,6 +23,7 @@ namespace SpawnManager.Networking
 			{ ShowProfilingLogPrefix, ShowProfilingLog },
 			{ SpawnTestCase, SpawnTestClass.SpawnTestCase },
 			{ SpawnPrefabPrefix, SpawnTestClass.SpawnPrefab },
+			{ SpawnModdedTestCase, SpawnTestClass.SpawnTestCaseModded }
 		};
 
 		public static void HandleChatMessage(string message)

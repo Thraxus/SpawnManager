@@ -133,6 +133,7 @@
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Queue.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-Modded.sbc" />
     <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-Modified.sbc" />
     <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-ModifiedConnected.sbc" />
     <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-UpsideDownCockpit.sbc" />

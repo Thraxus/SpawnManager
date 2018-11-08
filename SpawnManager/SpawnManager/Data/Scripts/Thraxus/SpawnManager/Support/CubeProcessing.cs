@@ -128,18 +128,21 @@ namespace SpawnManager.Support
 		private static void ProcessInteriorTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // Doesn't have it's own inventory, needs supporting function to add inventory
 			if (!options.Restock) return;
+			((MyObjectBuilder_InteriorTurret)block).EnableIdleRotation = !options.DisableIdleTurretMovement;
 			ProcessWeaponRestocking(block, options, size);
 		}
 
 		private static void ProcessLargeGatlingTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // Doesn't have it's own inventory, needs supporting function to add inventory
 			if (!options.Restock) return;
+			((MyObjectBuilder_LargeGatlingTurret)block).EnableIdleRotation = !options.DisableIdleTurretMovement;
 			ProcessWeaponRestocking(block, options, size);
 		}
 
 		private static void ProcessLargeMissileTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // Doesn't have it's own inventory, needs supporting function to add inventory
 			if (!options.Restock) return;
+			((MyObjectBuilder_LargeMissileTurret) block).EnableIdleRotation = !options.DisableIdleTurretMovement;
 			ProcessWeaponRestocking(block, options, size);
 		}
 
@@ -208,7 +211,8 @@ namespace SpawnManager.Support
 				if (parachuteMaterialList == null) return;
 				MyObjectBuilder_Component parachuteMaterial = new MyObjectBuilder_Component { SubtypeName = parachuteMaterialList[0].SubtypeName };
 				MyPhysicalItemDefinition parachuteMaterialDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(parachuteMaterial.GetId());
-				AddToInventory(block.ComponentContainer, parachuteMaterial, (int)(GetMaxVolume(block, size) / parachuteMaterialDefinition.Volume));
+				//AddToInventory(block.ComponentContainer, parachuteMaterial, (int)(GetMaxVolume(block, size) / parachuteMaterialDefinition.Volume));
+				AddToInventory(block.ComponentContainer, parachuteMaterial, GetAmount(GetMaxVolume(block, size), parachuteMaterialDefinition.Volume, 1), true);
 			}
 			catch (Exception e)
 			{
@@ -227,7 +231,8 @@ namespace SpawnManager.Support
 				if (fuelList == null) return;
 				MyObjectBuilder_Ingot fuel = new MyObjectBuilder_Ingot { SubtypeName = fuelList[0].SubtypeName };
 				MyPhysicalItemDefinition fuelDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(fuel.GetId());
-				AddToInventory(block.ComponentContainer, fuel, (int)(GetMaxVolume(block, size) / fuelDefinition.Volume));
+				//AddToInventory(block.ComponentContainer, fuel, (int)(GetMaxVolume(block, size) / fuelDefinition.Volume), true);
+				AddToInventory(block.ComponentContainer, fuel, GetAmount(GetMaxVolume(block, size), fuelDefinition.Volume, 1), true);
 			}
 			catch (Exception e)
 			{
@@ -314,12 +319,14 @@ namespace SpawnManager.Support
 			{
 				List<MyDefinitionId> ammoSubTypeIds = GetItemDefinitionList(block);
 				if (ammoSubTypeIds == null || ammoSubTypeIds.Count == 0) return;
-
+				ClearInventory(block.ComponentContainer);
 				foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
 				{
 					MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
-					int amountToAdd = (int)(GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count;
-					AddToInventory(block.ComponentContainer, new MyObjectBuilder_AmmoMagazine() {SubtypeName = ammoSubType.SubtypeName}, amountToAdd);
+					//int amountToAdd = (int)Math.Ceiling((GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count);
+					int amountToAdd = GetAmount(GetMaxVolume(block, size), myAmmo.Volume, ammoSubTypeIds.Count);
+					AddToInventory(block.ComponentContainer, new MyObjectBuilder_AmmoMagazine() {SubtypeName = ammoSubType.SubtypeName}, amountToAdd, false);
+					Core.GeneralLog.WriteToLog("ProcessWeaponRestocking", $"Adding to inventory:\t{ammoSubType.SubtypeName}: {amountToAdd}");
 				}
 			}
 			catch (Exception e)
@@ -328,7 +335,7 @@ namespace SpawnManager.Support
 			}
 		}
 
-		private static void AddToInventory(MyObjectBuilder_ComponentContainer componentContainer, MyObjectBuilder_PhysicalObject item, MyFixedPoint amount)
+		private static void AddToInventory(MyObjectBuilder_ComponentContainer componentContainer, MyObjectBuilder_PhysicalObject item, MyFixedPoint amount, bool clearInventory)
 		{
 			try
 			{
@@ -336,7 +343,7 @@ namespace SpawnManager.Support
 				foreach (MyObjectBuilder_ComponentContainer.ComponentData componentData in componentContainer.Components)
 				{
 					if (componentData.TypeId != "MyInventoryBase") continue;
-					((MyObjectBuilder_Inventory)componentData.Component)?.Items.Clear();
+					if (clearInventory) ((MyObjectBuilder_Inventory)componentData.Component)?.Items.Clear();
 					((MyObjectBuilder_Inventory)componentData.Component)?.Items.Add(
 						new MyObjectBuilder_InventoryItem
 						{
@@ -364,6 +371,11 @@ namespace SpawnManager.Support
 			Definitions.MaxInventoryVolume.TryGetValue(block.TypeId, out volumeFunc);
 			if (volumeFunc == null) return 0;
 			return volumeFunc.Invoke(size, block.SubtypeId);
+		}
+
+		private static int GetAmount(double blockVolume, double itemVolume, int count)
+		{
+			return (int)Math.Ceiling((blockVolume / itemVolume) / count);
 		}
 	}
 }

@@ -16,6 +16,7 @@ namespace SpawnManager.Support
 	    }
 
 		public bool DisableDampners = true;
+		public bool DisableIdleTurretMovement = false;
 		public bool ForcePhysics = false;
 		public bool ForceStatic = false;
 		public bool IgnoreCleanup = false;

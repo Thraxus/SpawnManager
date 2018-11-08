@@ -7,7 +7,14 @@ namespace SpawnManager.DebugTools
 {
     public static class SpawnTestClass
     {
-        public static void SpawnTestCase(string s)
+	    public static void SpawnTestCaseModded(string s)
+	    {
+		    MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
+			initialMatrixD.Translation += initialMatrixD.Forward * 50;
+		    SpawnPrefab("SubGridTestHell-Modded", initialMatrixD);
+		}
+		
+		public static void SpawnTestCase(string s)
         {
 	        MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
 			
@@ -24,7 +31,7 @@ namespace SpawnManager.DebugTools
 
 		private static void SpawnPrefab(string prefab, MatrixD position)
         {
-	        Options options = new Options { Restock = true };
+	        Options options = new Options { Restock = true};
 			PrefabSpawner.SpawnPrefab(prefab, position, options); 
 		}
 
