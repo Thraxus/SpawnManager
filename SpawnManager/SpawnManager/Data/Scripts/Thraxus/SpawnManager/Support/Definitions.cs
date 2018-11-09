@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using SpawnManager.Eem;
 using VRage.Game;
@@ -212,6 +213,118 @@ namespace SpawnManager.Support
 
 		public static Dictionary<string, CustomPrefabConfiguration> CustomPrefabConfigurations;
 
+		/* Rules:
+		 *	x and y must be the same, z can be any size up to max of original block
+		 *	mount points must be on the same side
+		 *
+		 *	MyObjectBuilder_WeaponBlockDefinition
+		 *	MyObjectBuilder_LargeTurretBaseDefinition
+		 */
+
+		private static readonly Dictionary<MyObjectBuilderType, Action<MyDefinitionBase>> WeaponDictionaryBuilder = new Dictionary<MyObjectBuilderType, Action<MyDefinitionBase>>()
+		{
+			{typeof(MyWeaponBlockDefinition), ProcessWeaponBlock},
+			{typeof(MyLargeTurretBaseDefinition), ProcessLargeTurretBase}
+		};
+
+		private static void ProcessWeaponBlock(MyDefinitionBase myDefinition)
+		{
+			try
+			{
+				//MyCubeBlockDefinition myCubeBlock = MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
+				MyWeaponBlockDefinition myWeaponBlock = (MyWeaponBlockDefinition) MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
+
+				foreach (MyCubeBlockDefinition.MountPoint myMountPoint in myWeaponBlock.MountPoints)
+				{
+					WeaponInformation myWeaponInformation = new WeaponInformation(
+						myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side,
+						myWeaponBlock.CubeSize,
+						myWeaponBlock.Size.X,
+						myWeaponBlock.Size.Y,
+						myWeaponBlock.Size.Z,
+						myDefinition.Id.SubtypeId, 
+						myDefinition.Context?.ModName ?? "Vanilla", 
+						myDefinition.Id.ToString()
+					);
+					if (myWeaponBlock.CubeSize == MyCubeSize.Large)
+						LargeGridWeaponsList.Add(myWeaponInformation);
+					else SmallGridWeaponsList.Add(myWeaponInformation);
+					Core.GeneralLog.WriteToLog("ProcessWeaponBlock", myWeaponInformation.ToString());
+				}
+			}
+			catch (Exception e)
+			{
+				Core.GeneralLog.WriteToLog("ProcessWeaponBlock", $"Exception! {e}");
+			}
+		}
+
+		private static void ProcessLargeTurretBase(MyDefinitionBase myDefinition)
+		{
+			try
+			{
+				//MyCubeBlockDefinition myCubeBlock = MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
+				MyLargeTurretBaseDefinition myLargeTurret = (MyLargeTurretBaseDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
+				foreach (MyCubeBlockDefinition.MountPoint myMountPoint in myLargeTurret.MountPoints)
+				{
+					WeaponInformation myWeaponInformation = new WeaponInformation(
+						myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side,
+						myLargeTurret.CubeSize,
+						myLargeTurret.Size.X,
+						myLargeTurret.Size.Y,
+						myLargeTurret.Size.Z,
+						myDefinition.Id.SubtypeId,
+						myDefinition.Context?.ModName ?? "Vanilla",
+						myDefinition.Id.ToString()
+					);
+					if (myLargeTurret.CubeSize == MyCubeSize.Large)
+						LargeGridWeaponsList.Add(myWeaponInformation);
+					else SmallGridWeaponsList.Add(myWeaponInformation);
+					Core.GeneralLog.WriteToLog("ProcessLargeTurretBase", myWeaponInformation.ToString());
+				}
+			}
+			catch (Exception e)
+			{
+				Core.GeneralLog.WriteToLog("ProcessLargeTurretBase", $"Exception! {e}");
+			}
+		}
+
+		public struct WeaponInformation
+		{
+			// Back, Bottom, Front, Left, Right, Top
+			private readonly BlockSideEnum _mountPoint;
+
+			private readonly MyCubeSize _myCubeSize;
+
+			private readonly int _sizeX;
+			private readonly int _sizeY;
+			private readonly int _sizeZ;
+
+			private readonly MyStringHash _subtypeId;
+			private readonly string _modName;
+			private readonly string _id;
+
+			public WeaponInformation(BlockSideEnum mountPoint, MyCubeSize myCubeSize, int sizeX, int sizeY, int sizeZ, MyStringHash subtypeId, string modName, string id)
+			{
+				_mountPoint = mountPoint;
+				_myCubeSize = myCubeSize;
+				_sizeX = sizeX;
+				_sizeY = sizeY;
+				_sizeZ = sizeZ;
+				_subtypeId = subtypeId;
+				_modName = modName;
+				_id = id;
+			}
+
+			public override string ToString()
+			{
+				return $"MountPoint:\t{_mountPoint.ToString()}\tCubeSize:\t{_myCubeSize.ToString()}\tSizeX:\t{_sizeX.ToString()}\tSizeY:\t{_sizeY.ToString()}\tSizeZ:\t{_sizeZ.ToString()}\tSubtype:\t{_subtypeId.ToString()}\tModName:\t{_modName}\tID:\t{_id}";
+			}
+		}
+
+		public static List<WeaponInformation> LargeGridWeaponsList = new List<WeaponInformation>();
+
+		public static List<WeaponInformation> SmallGridWeaponsList = new List<WeaponInformation>();
+
 		private static bool _registered;
 
 		public static void Register()
@@ -226,6 +339,17 @@ namespace SpawnManager.Support
 					DictionaryBuilder.TryGetValue(definition.Id.TypeId, out action);
 					if (!definition.Public) continue;
 					action?.Invoke(definition.Id.SubtypeId, definition.Context?.ModName ?? "Vanilla", definition.Id.ToString());
+
+					try
+					{
+						Action<MyDefinitionBase> weaponAction;
+						WeaponDictionaryBuilder.TryGetValue(definition.GetType(), out weaponAction);
+						weaponAction?.Invoke(definition);
+					}
+					catch (Exception e)
+					{
+						Core.GeneralLog.WriteToLog("WeaponDefinitions", $".GetType failed?! {e}");
+					}
 				}
 
 				foreach (MySpawnGroupDefinition spawnGroupDefinition in MyDefinitionManager.Static.GetSpawnGroupDefinitions())
@@ -269,6 +393,8 @@ namespace SpawnManager.Support
 			CustomPrefabConfigurations?.Clear();
 			RestockDefinitions?.Clear();
 			MaxInventoryVolume?.Clear();
+			LargeGridWeaponsList?.Clear();
+			SmallGridWeaponsList?.Clear();
 			Core.GeneralLog.WriteToLog("Definitions", "Undefined... :(");
 		}
 	}

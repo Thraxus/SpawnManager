@@ -59,6 +59,8 @@ namespace SpawnManager.Support
 
 		public static void GeneralGridSettings(MyObjectBuilder_CubeGrid grid, Options options)
 		{
+			grid.DestructibleBlocks = options.DestructableBlocks;
+			grid.GridGeneralDamageModifier = options.GeneralDamageModifier;
 			if (options.DisableDampners) grid.DampenersEnabled = false;
 			if (options.ForceStatic) grid.IsStatic = true;
 			if (options.ForcePhysics) grid.CreatePhysics = true;
@@ -70,6 +72,7 @@ namespace SpawnManager.Support
 		{
 			block.Owner = options.OwnerId;
 			block.BuiltBy = options.BuiltBy;
+			block.BlockGeneralDamageModifier = options.GeneralDamageModifier;
 			if (options.SpawnDamaged) block.IntegrityPercent = (float) options.SpawmDamagedPercent;
 			if (options.SpawnAsWireframe)
 			{

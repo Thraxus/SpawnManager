@@ -15,6 +15,7 @@ namespace SpawnManager.Support
 	        Precise, Loose, ExtraLoose
 	    }
 
+		public bool DestructableBlocks = true;
 		public bool DisableDampners = true;
 		public bool DisableIdleTurretMovement = false;
 		public bool ForcePhysics = false;
@@ -34,6 +35,7 @@ namespace SpawnManager.Support
 		public double SpawmDamagedPercent = 0.5;
 
 		public float BeaconBroadcastRadius = 30000;
+		public float GeneralDamageModifier = 1;
 
 		public long EntityId = 0;
 		public long OwnerId = 0;
@@ -47,6 +49,6 @@ namespace SpawnManager.Support
 		public MyOwnershipShareModeEnum FactionShareMode = MyOwnershipShareModeEnum.Faction;
 		public Precision CollisionPrecision = Precision.ExtraLoose;
 	    public EnvironmentType Environment = EnvironmentType.Space;
-	    
+		
 	}
 }
