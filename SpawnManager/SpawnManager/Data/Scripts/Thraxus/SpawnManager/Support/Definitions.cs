@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
@@ -231,27 +232,27 @@ namespace SpawnManager.Support
 		{
 			try
 			{
+				if (WeaponIgnoreList.Contains(myDefinition.Id.SubtypeId) || !myDefinition.Public) return;
 				//MyCubeBlockDefinition myCubeBlock = MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
 				MyWeaponBlockDefinition myWeaponBlock = (MyWeaponBlockDefinition) MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
-
-				foreach (MyCubeBlockDefinition.MountPoint myMountPoint in myWeaponBlock.MountPoints)
-				{
-					WeaponInformation myWeaponInformation = new WeaponInformation(
-						myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side,
-						myWeaponBlock.CubeSize,
-						myWeaponBlock.Size.X,
-						myWeaponBlock.Size.Y,
-						myWeaponBlock.Size.Z,
-						myDefinition.Id.SubtypeId, 
-						myDefinition.Id.SubtypeName,
-						myDefinition.Context?.ModName ?? "Vanilla", 
-						myDefinition.Id.ToString()
-					);
-					if (myWeaponBlock.CubeSize == MyCubeSize.Large)
-						LargeGridWeaponBlocks.Add(myWeaponInformation);
-					else SmallGridWeaponBlocks.Add(myWeaponInformation);
-					Core.GeneralLog.WriteToLog("ProcessWeaponBlock", myWeaponInformation.ToString());
-				}
+				List<BlockSideEnum> mountPoints = myWeaponBlock.MountPoints.Select(myMountPoint => myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side).ToList();
+				WeaponInformation myWeaponInformation = new WeaponInformation(
+					mountPoints,
+					myWeaponBlock.CubeSize,
+					myWeaponBlock.Size.X,
+					myWeaponBlock.Size.Y,
+					myWeaponBlock.Size.Z,
+					myDefinition.Id.SubtypeId,
+					myDefinition.Id.SubtypeName,
+					myDefinition.Id.TypeId,
+					myDefinition.Context?.ModName ?? "Vanilla",
+					myDefinition.Id.ToString(),
+					myWeaponBlock
+				);
+				if (myWeaponBlock.CubeSize == MyCubeSize.Large)
+					LargeGridWeaponBlocks.Add(myWeaponInformation);
+				else SmallGridWeaponBlocks.Add(myWeaponInformation);
+				//Core.GeneralLog.WriteToLog("ProcessWeaponBlock", myWeaponInformation.ToString());
 			}
 			catch (Exception e)
 			{
@@ -263,26 +264,27 @@ namespace SpawnManager.Support
 		{
 			try
 			{
+				if (WeaponIgnoreList.Contains(myDefinition.Id.SubtypeId) || !myDefinition.Public) return;
 				//MyCubeBlockDefinition myCubeBlock = MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
 				MyLargeTurretBaseDefinition myLargeTurret = (MyLargeTurretBaseDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(myDefinition.Id);
-				foreach (MyCubeBlockDefinition.MountPoint myMountPoint in myLargeTurret.MountPoints)
-				{
-					WeaponInformation myWeaponInformation = new WeaponInformation(
-						myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side,
-						myLargeTurret.CubeSize,
-						myLargeTurret.Size.X,
-						myLargeTurret.Size.Y,
-						myLargeTurret.Size.Z,
-						myDefinition.Id.SubtypeId,
-						myDefinition.Id.SubtypeName,
-						myDefinition.Context?.ModName ?? "Vanilla",
-						myDefinition.Id.ToString()
-					);
-					if (myLargeTurret.CubeSize == MyCubeSize.Large)
-						LargeGridWeaponTurretBases.Add(myWeaponInformation);
-					else SmallGridWeaponTurretBases.Add(myWeaponInformation);
-					Core.GeneralLog.WriteToLog("ProcessLargeTurretBase", myWeaponInformation.ToString());
-				}
+				List<BlockSideEnum> mountPoints = myLargeTurret.MountPoints.Select(myMountPoint => myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side).ToList();
+				WeaponInformation myWeaponInformation = new WeaponInformation(
+					mountPoints,
+					myLargeTurret.CubeSize,
+					myLargeTurret.Size.X,
+					myLargeTurret.Size.Y,
+					myLargeTurret.Size.Z,
+					myDefinition.Id.SubtypeId,
+					myDefinition.Id.SubtypeName,
+					myDefinition.Id.TypeId,
+					myDefinition.Context?.ModName ?? "Vanilla",
+					myDefinition.Id.ToString(),
+					null, myLargeTurret
+				);
+				if (myLargeTurret.CubeSize == MyCubeSize.Large)
+					LargeGridWeaponTurretBases.Add(myWeaponInformation);
+				else SmallGridWeaponTurretBases.Add(myWeaponInformation);
+				//Core.GeneralLog.WriteToLog("ProcessLargeTurretBase", myWeaponInformation.ToString());
 			}
 			catch (Exception e)
 			{
@@ -290,10 +292,16 @@ namespace SpawnManager.Support
 			}
 		}
 
+		private static readonly List<MyStringHash> WeaponIgnoreList = new List<MyStringHash>()
+		{
+			MyStringHash.GetOrCompute("OKIDesignator"),
+			MyStringHash.GetOrCompute("OKI76mmBSD")
+		};
+
 		public struct WeaponInformation
 		{
 			// Back, Bottom, Front, Left, Right, Top
-			public readonly BlockSideEnum MountPoint;
+			public readonly List<BlockSideEnum> MountPoints;
 			
 			public readonly MyCubeSize MyCubeSize;
 			
@@ -306,32 +314,40 @@ namespace SpawnManager.Support
 			public readonly string ModName;
 			public readonly string Id;
 
-			public WeaponInformation(BlockSideEnum mountPoint, MyCubeSize myCubeSize, int sizeX, int sizeY, int sizeZ, MyStringHash subtypeId, string subtypeName, string modName, string id)
+			public readonly MyObjectBuilderType TypeId;
+			public readonly MyWeaponBlockDefinition MyWeaponBlock;
+			public readonly MyLargeTurretBaseDefinition MyLargeTurret;
+
+			public WeaponInformation(List<BlockSideEnum> mountPoints, MyCubeSize myCubeSize, int sizeX, int sizeY, int sizeZ,
+				MyStringHash subtypeId, string subtypeName, MyObjectBuilderType typeId, string modName, string id, MyWeaponBlockDefinition myWeaponBlock = null, MyLargeTurretBaseDefinition myLargeTurret = null)
 			{
-				MountPoint = mountPoint;
+				MountPoints = mountPoints;
 				MyCubeSize = myCubeSize;
 				SizeX = sizeX;
 				SizeY = sizeY;
 				SizeZ = sizeZ;
 				SubtypeId = subtypeId;
 				SubtypeName = subtypeName;
+				TypeId = typeId;
 				ModName = modName;
 				Id = id;
+				MyWeaponBlock = myWeaponBlock;
+				MyLargeTurret = myLargeTurret;
 			}
 
 			public override string ToString()
 			{
-				return $"MountPoint:\t{MountPoint.ToString()}\tCubeSize:\t{MyCubeSize.ToString()}\tSizeX:\t{SizeX.ToString()}\tSizeY:\t{SizeY.ToString()}\tSizeZ:\t{SizeZ.ToString()}\tSubtypeId:\t{SubtypeId.ToString()}\tSubtypeName:\t{SubtypeName}\tModName:\t{ModName}\tID:\t{Id}";
+				return $"MountPoints:\t{string.Join(", ", MountPoints)}\tCubeSize:\t{MyCubeSize.ToString()}\tSizeX:\t{SizeX.ToString()}\tSizeY:\t{SizeY.ToString()}\tSizeZ:\t{SizeZ.ToString()}\tSubtypeId:\t{SubtypeId.ToString()}\tSubtypeName:\t{SubtypeName}\tModName:\t{ModName}\tID:\t{Id}";
 			}
 		}
 
-		public static List<WeaponInformation> LargeGridWeaponTurretBases = new List<WeaponInformation>();
+		public static readonly List<WeaponInformation> LargeGridWeaponTurretBases = new List<WeaponInformation>();
 
-		public static List<WeaponInformation> LargeGridWeaponBlocks = new List<WeaponInformation>();
+		public static readonly List<WeaponInformation> LargeGridWeaponBlocks = new List<WeaponInformation>();
 
-		public static List<WeaponInformation> SmallGridWeaponTurretBases = new List<WeaponInformation>();
+		public static readonly List<WeaponInformation> SmallGridWeaponTurretBases = new List<WeaponInformation>();
 		
-		public static List<WeaponInformation> SmallGridWeaponBlocks = new List<WeaponInformation>();
+		public static readonly List<WeaponInformation> SmallGridWeaponBlocks = new List<WeaponInformation>();
 
 		private static bool _registered;
 
@@ -405,6 +421,7 @@ namespace SpawnManager.Support
 			LargeGridWeaponBlocks?.Clear();
 			SmallGridWeaponTurretBases?.Clear();
 			SmallGridWeaponBlocks?.Clear();
+			WeaponIgnoreList?.Clear();
 			Core.GeneralLog.WriteToLog("Definitions", "Undefined... :(");
 		}
 	}

@@ -17,9 +17,9 @@ namespace SpawnManager.Support
 
 		public bool DestructableBlocks = true;
 		public bool DisableDampners = true;
-		public bool DisableIdleTurretMovement = false;
 		public bool ForcePhysics = false;
 		public bool ForceStatic = false;
+		public bool IdleTurretMovement = true;
 		public bool IgnoreCleanup = false;
 		public bool IgnoreCollisions = false;
 		public bool PowerDownGrid = false;

@@ -8,6 +8,7 @@ using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using SpawnManager.Support;
 using VRage.Game;
+using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
@@ -40,11 +41,12 @@ namespace SpawnManager.Tools
 			{
 				foreach (MyObjectBuilder_CubeGrid gridBuilder in prefab.CubeGrids)
 				{
-					foreach (MyObjectBuilder_CubeBlock block in gridBuilder.CubeBlocks)
+					for (int index = 0; index < gridBuilder.CubeBlocks.Count; index++)
 					{
-						Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize> action;
-						ProcessWeapons.TryGetValue(block.GetType(), out action);
-						action?.Invoke(block, options, gridBuilder.GridSizeEnum);
+						MyObjectBuilder_CubeBlock block = gridBuilder.CubeBlocks[index];
+						Func<MyObjectBuilder_CubeBlock, Options, MyCubeSize, MyObjectBuilder_CubeBlock> func;
+						ProcessWeapons.TryGetValue(block.GetType(), out func);
+						if (func != null) gridBuilder.CubeBlocks[index] = func.Invoke(block, options, gridBuilder.GridSizeEnum);
 					}
 				}
 			}
@@ -54,61 +56,192 @@ namespace SpawnManager.Tools
 			}
 		}
 
-		private static readonly Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>> ProcessWeapons = new Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>>
+		private static readonly Dictionary<MyObjectBuilderType, Func<MyObjectBuilder_CubeBlock, Options, MyCubeSize, MyObjectBuilder_CubeBlock>> ProcessWeapons = new Dictionary<MyObjectBuilderType, Func<MyObjectBuilder_CubeBlock, Options, MyCubeSize, MyObjectBuilder_CubeBlock>>
 		{
-			{ typeof(MyObjectBuilder_InteriorTurret), ProcessInteriorTurret },
-			{ typeof(MyObjectBuilder_LargeGatlingTurret), ProcessLargeGatlingTurret },
-			{ typeof(MyObjectBuilder_LargeMissileTurret), ProcessLargeMissileTurret },
-			{ typeof(MyObjectBuilder_SmallGatlingGun), ProcessSmallGatlingGun },
-			{ typeof(MyObjectBuilder_SmallMissileLauncher), ProcessSmallMissileLauncher },
-			{ typeof(MyObjectBuilder_SmallMissileLauncherReload), ProcessSmallMissileLauncherReload },
+			{ typeof(MyObjectBuilder_InteriorTurret), ProcessLargeTurretBase },
+			{ typeof(MyObjectBuilder_LargeGatlingTurret), ProcessLargeTurretBase },
+			{ typeof(MyObjectBuilder_LargeMissileTurret), ProcessLargeTurretBase },
+			{ typeof(MyObjectBuilder_SmallGatlingGun), ProcessWeaponBlock },
+			{ typeof(MyObjectBuilder_SmallMissileLauncher), ProcessWeaponBlock },
+			{ typeof(MyObjectBuilder_SmallMissileLauncherReload), ProcessWeaponBlock },
 		};
 
-		private static void ProcessInteriorTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock ProcessLargeTurretBase(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // LargeTurretBase
 			try
 			{
+				MyLargeTurretBaseDefinition myLargeTurret = (MyLargeTurretBaseDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
+				List<BlockSideEnum> mountPoints = myLargeTurret.MountPoints.Select(myMountPoint => myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side).ToList();
+				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeTurretBase", $"Block {myLargeTurret.GetType()} targeted for replacement...");
+				//myLargeTurret.MountPointLocalNormalToBlockLocal()
 				List<WeaponInformation> replacementOptions = LargeGridWeaponTurretBases.FindAll(x =>
-					x.ModName != "Vanilla" &&
-					x.MountPoint == BlockSideEnum.Bottom &&
-					x.SizeX == 1 && 
-					x.SizeY == 1);
-				if (replacementOptions.Count == 0) return;
-				block = CreateReplacementTurretBase(replacementOptions[Core.Random.Next(0, replacementOptions.Count)], block, size);
-				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessInteriorTurret", $"Block {block.SubtypeId} should have been replaced...");
+					//x.ModName != "Vanilla" &&
+					x.SubtypeId != block.SubtypeId &&
+					x.MountPoints.Intersect(mountPoints).Any() &&
+					x.SizeX == myLargeTurret.Size.X &&
+					x.SizeY == myLargeTurret.Size.Y //&&
+					//x.SizeZ <= myLargeTurret.Size.Z + 1
+					);
+				if (replacementOptions.Count == 0) return block;
+				block = CreateReplacementTurretBase(replacementOptions[Core.Random.Next(0, replacementOptions.Count)], block, size, myLargeTurret);
+				//MyLargeTurretBaseDefinition myNewLargeTurret = (MyLargeTurretBaseDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
+				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeTurretBase", $"Block {block.SubtypeId} has been replaced...");
 			}
 			catch (Exception e)
 			{
-				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessInteriorTurret", $"Exception!\t{e}");
+				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeTurretBase", $"Exception!\t{e}");
 			}
+			return block;
 		}
 
-		private static MyObjectBuilder_CubeBlock CreateReplacementTurretBase(WeaponInformation weaponInformation, MyObjectBuilder_CubeBlock block, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock CreateReplacementTurretBase(WeaponInformation weaponInformation, MyObjectBuilder_CubeBlock block, MyCubeSize size, MyLargeTurretBaseDefinition myLargeTurret)
 		{
-
-			MyObjectBuilder_CubeBlock myNewWeapon = new MyObjectBuilder_TurretBase()
+			//weaponInformation.MyLargeTurret.GeneratedBlockType
+			//MyObjectBuilder_CubeBlock myNewWeapon = new MyObjectBuilder_TurretBase()
+			Core.GeneralLog.WriteToLog("CreateReplacementTurretBase-ProcessWeaponBlock", $"Block {weaponInformation.SubtypeId} chosen as the replacement...");
+			MyObjectBuilder_CubeBlock myNewWeapon = MyObjectBuilderSerializer.CreateNewObject(
+				weaponInformation.TypeId, weaponInformation.SubtypeName) as MyObjectBuilder_CubeBlock;
+			if (myNewWeapon == null)
 			{
-				SubtypeName = weaponInformation.SubtypeName,
-				Range = 2500,
-				Orientation = block.Orientation,
-				BlockOrientation = block.BlockOrientation,
-				ColorMaskHSV = block.ColorMaskHSV,
-				Min = block.Min,
-				CustomName = "Retrofit " + block.Name,
-				TargetCharacters = ((MyObjectBuilder_TurretBase) block).TargetCharacters,
-				TargetLargeGrids = ((MyObjectBuilder_TurretBase)block).TargetLargeGrids,
-				TargetMeteors = ((MyObjectBuilder_TurretBase)block).TargetMeteors,
-				TargetMissiles = ((MyObjectBuilder_TurretBase)block).TargetMissiles,
-				TargetNeutrals = ((MyObjectBuilder_TurretBase)block).TargetNeutrals,
-				TargetSmallGrids = ((MyObjectBuilder_TurretBase)block).TargetSmallGrids,
-				TargetStations = ((MyObjectBuilder_TurretBase)block).TargetStations,
-				EnableIdleRotation = ((MyObjectBuilder_TurretBase)block).EnableIdleRotation,
-
+				Core.GeneralLog.WriteToLog("CreateReplacementTurretBase", $"Replacement came up null...");
+				return block;
+			}
+			((MyObjectBuilder_TurretBase)myNewWeapon).EntityId = block.EntityId;
+			((MyObjectBuilder_TurretBase)myNewWeapon).SubtypeName = weaponInformation.SubtypeName;
+			((MyObjectBuilder_TurretBase)myNewWeapon).IntegrityPercent = block.IntegrityPercent;
+			((MyObjectBuilder_TurretBase)myNewWeapon).BuildPercent = block.BuildPercent;
+			((MyObjectBuilder_TurretBase)myNewWeapon).Range = 2500;
+			((MyObjectBuilder_TurretBase)myNewWeapon).Orientation = block.Orientation;
+			((MyObjectBuilder_TurretBase)myNewWeapon).BlockOrientation = block.BlockOrientation;
+			((MyObjectBuilder_TurretBase)myNewWeapon).ColorMaskHSV = block.ColorMaskHSV;
+			((MyObjectBuilder_TurretBase)myNewWeapon).Min = block.Min;
+			//((MyObjectBuilder_TurretBase)myNewWeapon).Name = "Retrofit " + ((MyObjectBuilder_TurretBase)myNewWeapon).Name;
+			//((MyObjectBuilder_TurretBase)myNewWeapon).CustomName = "Retrofit " + ((MyObjectBuilder_TurretBase)myNewWeapon).CustomName;
+			((MyObjectBuilder_TurretBase)myNewWeapon).ShowInTerminal = true;
+			((MyObjectBuilder_TurretBase)myNewWeapon).ShowOnHUD = false;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetCharacters = ((MyObjectBuilder_TurretBase)block).TargetCharacters;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetLargeGrids = ((MyObjectBuilder_TurretBase)block).TargetLargeGrids;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetMeteors = ((MyObjectBuilder_TurretBase)block).TargetMeteors;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetMissiles = ((MyObjectBuilder_TurretBase)block).TargetMissiles;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetNeutrals = ((MyObjectBuilder_TurretBase)block).TargetNeutrals;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetSmallGrids = ((MyObjectBuilder_TurretBase)block).TargetSmallGrids;
+			((MyObjectBuilder_TurretBase)myNewWeapon).TargetStations = ((MyObjectBuilder_TurretBase)block).TargetStations;
+			((MyObjectBuilder_TurretBase)myNewWeapon).EnableIdleRotation = ((MyObjectBuilder_TurretBase)block).EnableIdleRotation;
+			((MyObjectBuilder_TurretBase)myNewWeapon).Enabled = ((MyObjectBuilder_TurretBase)block).Enabled;
+			((MyObjectBuilder_TurretBase)myNewWeapon).ComponentContainer = new MyObjectBuilder_ComponentContainer()
+			{
+				Components = new List<MyObjectBuilder_ComponentContainer.ComponentData>()
+				{
+					new MyObjectBuilder_ComponentContainer.ComponentData()
+					{
+						TypeId = "MyInventoryBase",
+						Component = new MyObjectBuilder_Inventory()
+						{
+							InventoryFlags = MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive,
+							RemoveEntityOnEmpty = false
+						}
+					}
+				}
 			};
+			//((MyObjectBuilder_TurretBase)myNewWeapon).Inventory = new MyObjectBuilder_Inventory();
+			//((MyObjectBuilder_TurretBase)myNewWeapon).GunBase = new MyObjectBuilder_GunBase();
+
 			return myNewWeapon;
 		}
 
-		/*	Full Code to build something from scratch in OB:
+		private static MyObjectBuilder_CubeBlock ProcessWeaponBlock(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		{ // LargeTurretBase
+			try
+			{
+				MyWeaponBlockDefinition myWeaponBlock = (MyWeaponBlockDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
+				List<BlockSideEnum> mountPoints = myWeaponBlock.MountPoints.Select(myMountPoint => myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side).ToList();
+				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessWeaponBlock", $"Block {myWeaponBlock.GetType()} targeted for replacement...");
+				//myLargeTurret.MountPointLocalNormalToBlockLocal()
+				List<WeaponInformation> replacementOptions = LargeGridWeaponBlocks.FindAll(x =>
+						//x.ModName != "Vanilla" &&
+						x.SubtypeId != block.SubtypeId &&
+						x.MountPoints.Intersect(mountPoints).Any() &&
+						x.SizeX == myWeaponBlock.Size.X &&
+						x.SizeY == myWeaponBlock.Size.Y //&&
+					//x.SizeZ <= myLargeTurret.Size.Z + 1
+				);
+				if (replacementOptions.Count == 0) return block;
+				block = CreateReplacementWeaponBlock(replacementOptions[Core.Random.Next(0, replacementOptions.Count)], block, size, myWeaponBlock);
+				//MyWeaponBlockDefinition myNewLargeTurret = (MyWeaponBlockDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
+				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessWeaponBlock", $"Block {block.SubtypeId} has been replaced...");
+			}
+			catch (Exception e)
+			{
+				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessWeaponBlock", $"Exception!\t{e}");
+			}
+			return block;
+		}
+
+		private static MyObjectBuilder_CubeBlock CreateReplacementWeaponBlock(WeaponInformation weaponInformation, MyObjectBuilder_CubeBlock block, MyCubeSize size, MyWeaponBlockDefinition myWeaponBlock)
+		{
+			//weaponInformation.MyLargeTurret.GeneratedBlockType
+			//MyObjectBuilder_CubeBlock myNewWeapon = new MyObjectBuilder_TurretBase()
+			Core.GeneralLog.WriteToLog("CreateReplacementWeaponBlock-ProcessWeaponBlock", $"Block {weaponInformation.SubtypeId} chosen as the replacement...");
+			MyObjectBuilder_CubeBlock myNewWeapon = MyObjectBuilderSerializer.CreateNewObject(
+				weaponInformation.TypeId, weaponInformation.SubtypeName) as MyObjectBuilder_CubeBlock;
+			if (myNewWeapon == null)
+			{
+				Core.GeneralLog.WriteToLog("CreateReplacementWeaponBlock", $"Replacement came up null...");
+				return block;
+			}
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).EntityId = block.EntityId;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).SubtypeName = weaponInformation.SubtypeName;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).IntegrityPercent = block.IntegrityPercent;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).BuildPercent = block.BuildPercent;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).Orientation = block.Orientation;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).BlockOrientation = block.BlockOrientation;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).ColorMaskHSV = block.ColorMaskHSV;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).Min = block.Min;
+			//((MyObjectBuilder_UserControllableGun)myNewWeapon).Name = "Retrofit " + ((MyObjectBuilder_UserControllableGun)block).Name;
+			//((MyObjectBuilder_UserControllableGun)myNewWeapon).CustomName = "Retrofit " + ((MyObjectBuilder_UserControllableGun)block).CustomName;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).ShowInTerminal = true;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).ShowOnHUD = false;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).Enabled = ((MyObjectBuilder_UserControllableGun)block).Enabled;
+			((MyObjectBuilder_UserControllableGun)myNewWeapon).ComponentContainer = new MyObjectBuilder_ComponentContainer()
+			{
+				Components = new List<MyObjectBuilder_ComponentContainer.ComponentData>()
+				{
+					new MyObjectBuilder_ComponentContainer.ComponentData()
+					{
+						TypeId = "MyInventoryBase",
+						Component = new MyObjectBuilder_Inventory()
+						{
+							InventoryFlags = MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive,
+							RemoveEntityOnEmpty = false
+						}
+					}
+				}
+			};
+			//((MyObjectBuilder_UserControllableGun)myNewWeapon).Inventory = new MyObjectBuilder_Inventory();
+			//((MyObjectBuilder_UserControllableGun)myNewWeapon).GunBase = new MyObjectBuilder_GunBase();
+
+			return myNewWeapon;
+		}
+
+		/*
+	public static MyObjectBuilder_CubeBlock Upgrade(MyObjectBuilder_CubeBlock cubeBlock, MyObjectBuilderType newType, string newSubType)
+	{
+	  MyObjectBuilder_CubeBlock newObject = MyObjectBuilderSerializer.CreateNewObject(newType, newSubType) as MyObjectBuilder_CubeBlock;
+	  if (newObject == null)
+		return (MyObjectBuilder_CubeBlock) null;
+	  newObject.EntityId = cubeBlock.EntityId;
+	  newObject.Min = cubeBlock.Min;
+	  newObject.m_orientation = cubeBlock.m_orientation;
+	  newObject.IntegrityPercent = cubeBlock.IntegrityPercent;
+	  newObject.BuildPercent = cubeBlock.BuildPercent;
+	  newObject.BlockOrientation = cubeBlock.BlockOrientation;
+	  newObject.ConstructionInventory = cubeBlock.ConstructionInventory;
+	  newObject.ColorMaskHSV = cubeBlock.ColorMaskHSV;
+	  return newObject;
+	} 
+			
+			
+		Full Code to build something from scratch in OB:
 		-------------------------------
 		MyObjectBuilder_CubeGrid grid = new MyObjectBuilder_CubeGrid()
 		{
@@ -164,7 +297,7 @@ namespace SpawnManager.Tools
 				MyAPIGateway.Entities.CreateFromObjectBuilderParallel(newCargo, true);
 		------------------------------- */
 
-		private static void ProcessLargeGatlingTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock ProcessLargeGatlingTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // LargeTurretBase
 			try
 			{
@@ -174,9 +307,10 @@ namespace SpawnManager.Tools
 			{
 				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeGatlingTurret", $"Exception!\t{e}");
 			}
+			return block;
 		}
 
-		private static void ProcessLargeMissileTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock ProcessLargeMissileTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // LargeTurretBase
 			try
 			{
@@ -186,9 +320,10 @@ namespace SpawnManager.Tools
 			{
 				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeMissileTurret", $"Exception!\t{e}");
 			}
+			return block;
 		}
 
-		private static void ProcessSmallGatlingGun(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock ProcessSmallGatlingGun(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // WeaponBlock
 			try
 			{
@@ -198,9 +333,10 @@ namespace SpawnManager.Tools
 			{
 				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessSmallGatlingGun", $"Exception!\t{e}");
 			}
+			return block;
 		}
 
-		private static void ProcessSmallMissileLauncher(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock ProcessSmallMissileLauncher(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // WeaponBlock
 			try
 			{
@@ -210,9 +346,10 @@ namespace SpawnManager.Tools
 			{
 				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessSmallMissileLauncher", $"Exception!\t{e}");
 			}
+			return block;
 		}
 
-		private static void ProcessSmallMissileLauncherReload(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
+		private static MyObjectBuilder_CubeBlock ProcessSmallMissileLauncherReload(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // WeaponBlock
 			try
 			{
@@ -222,8 +359,9 @@ namespace SpawnManager.Tools
 			{
 				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessSmallMissileLauncherReload", $"Exception!\t{e}");
 			}
+			return block;
 		}
-		
+
 		//public void Junk()
 		//{
 		//MyWeaponBlockDefinition myWeapon = new MyWeaponBlockDefinition();

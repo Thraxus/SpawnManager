@@ -11,7 +11,7 @@ using VRage.Utils;
 namespace SpawnManager.Support
 {
 	public static class CubeProcessing
-	{
+	{ // IMyModel has Vector3I[] BoneMapping { get; } - BoneMapping!  Make broken ships a thing! DO IT!
 		public static void Close()
 		{
 			CubeBlockProcessing.Clear();
@@ -36,6 +36,7 @@ namespace SpawnManager.Support
 			{ typeof(MyObjectBuilder_SmallGatlingGun), ProcessSmallGatlingGun },
 			{ typeof(MyObjectBuilder_SmallMissileLauncher), ProcessSmallMissileLauncher },
 			{ typeof(MyObjectBuilder_SmallMissileLauncherReload), ProcessSmallMissileLauncherReload },
+			//{ typeof(MyObjectBuilder_TurretBase), ProcessTurretBase }
 		};
 
 		public struct PbReplacement
@@ -131,21 +132,21 @@ namespace SpawnManager.Support
 		private static void ProcessInteriorTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // Doesn't have it's own inventory, needs supporting function to add inventory
 			if (!options.Restock) return;
-			((MyObjectBuilder_InteriorTurret)block).EnableIdleRotation = !options.DisableIdleTurretMovement;
+			((MyObjectBuilder_InteriorTurret)block).EnableIdleRotation = options.IdleTurretMovement;
 			ProcessWeaponRestocking(block, options, size);
 		}
 
 		private static void ProcessLargeGatlingTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // Doesn't have it's own inventory, needs supporting function to add inventory
 			if (!options.Restock) return;
-			((MyObjectBuilder_LargeGatlingTurret)block).EnableIdleRotation = !options.DisableIdleTurretMovement;
+			((MyObjectBuilder_LargeGatlingTurret)block).EnableIdleRotation = options.IdleTurretMovement;
 			ProcessWeaponRestocking(block, options, size);
 		}
 
 		private static void ProcessLargeMissileTurret(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{ // Doesn't have it's own inventory, needs supporting function to add inventory
 			if (!options.Restock) return;
-			((MyObjectBuilder_LargeMissileTurret) block).EnableIdleRotation = !options.DisableIdleTurretMovement;
+			((MyObjectBuilder_LargeMissileTurret) block).EnableIdleRotation = options.IdleTurretMovement;
 			ProcessWeaponRestocking(block, options, size);
 		}
 
@@ -189,7 +190,7 @@ namespace SpawnManager.Support
 			{
 				if (options.PreservePrograms)
 				{
-					Core.GeneralLog.WriteToLog("ProcessMyProgrammableBlock", $"Entity: {options.EntityId}");
+					//Core.GeneralLog.WriteToLog("ProcessMyProgrammableBlock", $"Entity: {options.EntityId}");
 					string tempPbName = TempPbName;
 					if(PbPrograms.ContainsKey(options.EntityId))
 						PbPrograms[options.EntityId].Add(new PbReplacement(((MyObjectBuilder_MyProgrammableBlock)block).CustomName, TempPbName, ((MyObjectBuilder_MyProgrammableBlock)block).Program));

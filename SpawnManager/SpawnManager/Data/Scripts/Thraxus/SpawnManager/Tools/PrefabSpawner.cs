@@ -50,7 +50,6 @@ namespace SpawnManager.Tools
 						{
 							if (block == null)
 								continue;
-
 							CubeProcessing.GeneralBlockSettings(block, options);
 
 							Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize> action;
