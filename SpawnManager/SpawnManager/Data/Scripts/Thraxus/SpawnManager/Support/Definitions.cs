@@ -243,12 +243,13 @@ namespace SpawnManager.Support
 						myWeaponBlock.Size.Y,
 						myWeaponBlock.Size.Z,
 						myDefinition.Id.SubtypeId, 
+						myDefinition.Id.SubtypeName,
 						myDefinition.Context?.ModName ?? "Vanilla", 
 						myDefinition.Id.ToString()
 					);
 					if (myWeaponBlock.CubeSize == MyCubeSize.Large)
-						LargeGridWeaponsList.Add(myWeaponInformation);
-					else SmallGridWeaponsList.Add(myWeaponInformation);
+						LargeGridWeaponBlocks.Add(myWeaponInformation);
+					else SmallGridWeaponBlocks.Add(myWeaponInformation);
 					Core.GeneralLog.WriteToLog("ProcessWeaponBlock", myWeaponInformation.ToString());
 				}
 			}
@@ -273,12 +274,13 @@ namespace SpawnManager.Support
 						myLargeTurret.Size.Y,
 						myLargeTurret.Size.Z,
 						myDefinition.Id.SubtypeId,
+						myDefinition.Id.SubtypeName,
 						myDefinition.Context?.ModName ?? "Vanilla",
 						myDefinition.Id.ToString()
 					);
 					if (myLargeTurret.CubeSize == MyCubeSize.Large)
-						LargeGridWeaponsList.Add(myWeaponInformation);
-					else SmallGridWeaponsList.Add(myWeaponInformation);
+						LargeGridWeaponTurretBases.Add(myWeaponInformation);
+					else SmallGridWeaponTurretBases.Add(myWeaponInformation);
 					Core.GeneralLog.WriteToLog("ProcessLargeTurretBase", myWeaponInformation.ToString());
 				}
 			}
@@ -291,39 +293,45 @@ namespace SpawnManager.Support
 		public struct WeaponInformation
 		{
 			// Back, Bottom, Front, Left, Right, Top
-			private readonly BlockSideEnum _mountPoint;
+			public readonly BlockSideEnum MountPoint;
+			
+			public readonly MyCubeSize MyCubeSize;
+			
+			public readonly int SizeX;
+			public readonly int SizeY;
+			public readonly int SizeZ;
+			
+			public readonly MyStringHash SubtypeId;
+			public readonly string SubtypeName;
+			public readonly string ModName;
+			public readonly string Id;
 
-			private readonly MyCubeSize _myCubeSize;
-
-			private readonly int _sizeX;
-			private readonly int _sizeY;
-			private readonly int _sizeZ;
-
-			private readonly MyStringHash _subtypeId;
-			private readonly string _modName;
-			private readonly string _id;
-
-			public WeaponInformation(BlockSideEnum mountPoint, MyCubeSize myCubeSize, int sizeX, int sizeY, int sizeZ, MyStringHash subtypeId, string modName, string id)
+			public WeaponInformation(BlockSideEnum mountPoint, MyCubeSize myCubeSize, int sizeX, int sizeY, int sizeZ, MyStringHash subtypeId, string subtypeName, string modName, string id)
 			{
-				_mountPoint = mountPoint;
-				_myCubeSize = myCubeSize;
-				_sizeX = sizeX;
-				_sizeY = sizeY;
-				_sizeZ = sizeZ;
-				_subtypeId = subtypeId;
-				_modName = modName;
-				_id = id;
+				MountPoint = mountPoint;
+				MyCubeSize = myCubeSize;
+				SizeX = sizeX;
+				SizeY = sizeY;
+				SizeZ = sizeZ;
+				SubtypeId = subtypeId;
+				SubtypeName = subtypeName;
+				ModName = modName;
+				Id = id;
 			}
 
 			public override string ToString()
 			{
-				return $"MountPoint:\t{_mountPoint.ToString()}\tCubeSize:\t{_myCubeSize.ToString()}\tSizeX:\t{_sizeX.ToString()}\tSizeY:\t{_sizeY.ToString()}\tSizeZ:\t{_sizeZ.ToString()}\tSubtype:\t{_subtypeId.ToString()}\tModName:\t{_modName}\tID:\t{_id}";
+				return $"MountPoint:\t{MountPoint.ToString()}\tCubeSize:\t{MyCubeSize.ToString()}\tSizeX:\t{SizeX.ToString()}\tSizeY:\t{SizeY.ToString()}\tSizeZ:\t{SizeZ.ToString()}\tSubtypeId:\t{SubtypeId.ToString()}\tSubtypeName:\t{SubtypeName}\tModName:\t{ModName}\tID:\t{Id}";
 			}
 		}
 
-		public static List<WeaponInformation> LargeGridWeaponsList = new List<WeaponInformation>();
+		public static List<WeaponInformation> LargeGridWeaponTurretBases = new List<WeaponInformation>();
 
-		public static List<WeaponInformation> SmallGridWeaponsList = new List<WeaponInformation>();
+		public static List<WeaponInformation> LargeGridWeaponBlocks = new List<WeaponInformation>();
+
+		public static List<WeaponInformation> SmallGridWeaponTurretBases = new List<WeaponInformation>();
+		
+		public static List<WeaponInformation> SmallGridWeaponBlocks = new List<WeaponInformation>();
 
 		private static bool _registered;
 
@@ -393,8 +401,10 @@ namespace SpawnManager.Support
 			CustomPrefabConfigurations?.Clear();
 			RestockDefinitions?.Clear();
 			MaxInventoryVolume?.Clear();
-			LargeGridWeaponsList?.Clear();
-			SmallGridWeaponsList?.Clear();
+			LargeGridWeaponTurretBases?.Clear();
+			LargeGridWeaponBlocks?.Clear();
+			SmallGridWeaponTurretBases?.Clear();
+			SmallGridWeaponBlocks?.Clear();
 			Core.GeneralLog.WriteToLog("Definitions", "Undefined... :(");
 		}
 	}

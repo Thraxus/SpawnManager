@@ -28,6 +28,8 @@ namespace SpawnManager.Tools
 					List<MyObjectBuilder_RemoteControl> myRemoteControlList = new List<MyObjectBuilder_RemoteControl>();
 					MyPrefabDefinition prefab = MyDefinitionManager.Static.GetPrefabDefinition(prefabToSpawn);
 
+					WeaponSwapper.ProcessPrefab(prefab, options);
+
 					if (prefab.CubeGrids[0] == null)
 						return;
 
@@ -54,8 +56,7 @@ namespace SpawnManager.Tools
 							Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize> action;
 							CubeProcessing.CubeBlockProcessing.TryGetValue(block.GetType(), out action);
 							action?.Invoke(block, options, gridBuilder.GridSizeEnum);
-
-
+							
 							if (!cubeGridZero) continue;
 							if (block.GetType() == typeof(MyObjectBuilder_Cockpit)) myCockpitList.Add(block as MyObjectBuilder_Cockpit);
 							if (block.GetType() == typeof(MyObjectBuilder_RemoteControl)) myRemoteControlList.Add(block as MyObjectBuilder_RemoteControl);

@@ -1,4 +1,5 @@
-﻿using Sandbox.ModAPI;
+﻿using System;
+using Sandbox.ModAPI;
 using SpawnManager.Networking;
 using SpawnManager.Support;
 using SpawnManager.Utilities;
@@ -26,6 +27,8 @@ namespace SpawnManager
 
 		public static Log ProfilerLog { get; private set; }
 
+		public static Random Random;
+
 		private void RegisterEarly()
 		{
 			if (!IsServer || _registerEarly) return;
@@ -34,6 +37,7 @@ namespace SpawnManager
 			Messaging.Register();
 			GameSettings.Register();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.BeforeSimulation));
+			Random = new Random();
 			GeneralLog.WriteToLog("Core", $"RegisterEarly Complete... {UpdateOrder}");
 			_registerEarly = true;
 		}
