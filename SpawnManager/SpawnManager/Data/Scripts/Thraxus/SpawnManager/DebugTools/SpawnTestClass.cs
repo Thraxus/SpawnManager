@@ -25,7 +25,7 @@ namespace SpawnManager.DebugTools
 			//initialMatrixD.Translation += initialMatrixD.Left * 100;
 			//SpawnPrefab("SubGridTestHell-ModifiedConnected", initialMatrixD);
 			//initialMatrixD.Translation += initialMatrixD.Down * 100;
-			SpawnPrefab("SubGridTestHell-Modified", initialMatrixD);
+			SpawnPrefab("SubGridTestHell-Enhanced", initialMatrixD);
 		}
 
 		private static void SpawnPrefab(string prefab, MatrixD position)

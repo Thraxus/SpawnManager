@@ -216,7 +216,7 @@ namespace SpawnManager.Support
 				MyObjectBuilder_Component parachuteMaterial = new MyObjectBuilder_Component { SubtypeName = parachuteMaterialList[0].SubtypeName };
 				MyPhysicalItemDefinition parachuteMaterialDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(parachuteMaterial.GetId());
 				//AddToInventory(block.ComponentContainer, parachuteMaterial, (int)(GetMaxVolume(block, size) / parachuteMaterialDefinition.Volume));
-				AddToInventory(block.ComponentContainer, parachuteMaterial, GetAmount(GetMaxVolume(block, size), parachuteMaterialDefinition.Volume, 1), true);
+				AddToInventory(block.ComponentContainer, parachuteMaterial, GetAmount(GetMaxVolume(block, size), parachuteMaterialDefinition.Volume), true);
 			}
 			catch (Exception e)
 			{
@@ -236,7 +236,7 @@ namespace SpawnManager.Support
 				MyObjectBuilder_Ingot fuel = new MyObjectBuilder_Ingot { SubtypeName = fuelList[0].SubtypeName };
 				MyPhysicalItemDefinition fuelDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(fuel.GetId());
 				//AddToInventory(block.ComponentContainer, fuel, (int)(GetMaxVolume(block, size) / fuelDefinition.Volume), true);
-				AddToInventory(block.ComponentContainer, fuel, GetAmount(GetMaxVolume(block, size), fuelDefinition.Volume, 1), true);
+				AddToInventory(block.ComponentContainer, fuel, GetAmount(GetMaxVolume(block, size), fuelDefinition.Volume), true);
 			}
 			catch (Exception e)
 			{
@@ -259,16 +259,26 @@ namespace SpawnManager.Support
 				List<MyDefinitionId> ammoSubTypeIds = GetItemDefinitionList(block);
 				if (ammoSubTypeIds == null || ammoSubTypeIds.Count == 0) return;
 				((MyObjectBuilder_SmallMissileLauncher)block).Inventory.Clear();
-				foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
+
+				MyDefinitionId ammoSubType = ammoSubTypeIds[Core.Random.Next(0, ammoSubTypeIds.Count)];
+				MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
+				((MyObjectBuilder_SmallMissileLauncher)block).Inventory.Items.Add(new MyObjectBuilder_InventoryItem
 				{
-					MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
-					int amountToAdd = (int)(GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count;
-					((MyObjectBuilder_SmallMissileLauncher)block).Inventory.Items.Add(new MyObjectBuilder_InventoryItem
-					{
-						Amount = amountToAdd,
-						PhysicalContent = new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }
-					});
-				}
+					Amount = GetAmount(GetMaxVolume(block, size), myAmmo.Volume),
+					PhysicalContent = new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }
+				});
+
+				//foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
+				//{
+				//	MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
+				//	int amountToAdd = (int)(GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count;
+				//	Core.GeneralLog.WriteToLog("ProcessSmallMissileLauncher", $"Adding to inventory:\t{ammoSubType.SubtypeName}: {amountToAdd}");
+				//	((MyObjectBuilder_SmallMissileLauncher)block).Inventory.Items.Add(new MyObjectBuilder_InventoryItem
+				//	{
+				//		Amount = amountToAdd,
+				//		PhysicalContent = new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }
+				//	});
+				//}
 			}
 			catch (Exception e)
 			{
@@ -284,16 +294,26 @@ namespace SpawnManager.Support
 				List<MyDefinitionId> ammoSubTypeIds = GetItemDefinitionList(block);
 				if (ammoSubTypeIds == null || ammoSubTypeIds.Count == 0) return;
 				((MyObjectBuilder_SmallMissileLauncherReload)block).Inventory.Clear();
-				foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
+
+				MyDefinitionId ammoSubType = ammoSubTypeIds[Core.Random.Next(0, ammoSubTypeIds.Count)];
+				MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
+				((MyObjectBuilder_SmallMissileLauncherReload)block).Inventory.Items.Add(new MyObjectBuilder_InventoryItem
 				{
-					MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
-					int amountToAdd = (int)(GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count;
-					((MyObjectBuilder_SmallMissileLauncherReload)block).Inventory.Items.Add(new MyObjectBuilder_InventoryItem
-					{
-						Amount = amountToAdd,
-						PhysicalContent = new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }
-					});
-				}
+					Amount = GetAmount(GetMaxVolume(block, size), myAmmo.Volume),
+					PhysicalContent = new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }
+				});
+
+				//foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
+				//{
+				//	MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
+				//	int amountToAdd = (int)(GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count;
+				//	Core.GeneralLog.WriteToLog("ProcessSmallMissileLauncherReload", $"Adding to inventory:\t{ammoSubType.SubtypeName}: {amountToAdd}");
+				//	((MyObjectBuilder_SmallMissileLauncherReload)block).Inventory.Items.Add(new MyObjectBuilder_InventoryItem
+				//	{
+				//		Amount = amountToAdd,
+				//		PhysicalContent = new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }
+				//	});
+				//}
 			}
 			catch (Exception e)
 			{
@@ -324,14 +344,20 @@ namespace SpawnManager.Support
 				List<MyDefinitionId> ammoSubTypeIds = GetItemDefinitionList(block);
 				if (ammoSubTypeIds == null || ammoSubTypeIds.Count == 0) return;
 				ClearInventory(block.ComponentContainer);
-				foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
-				{
-					MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
-					//int amountToAdd = (int)Math.Ceiling((GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count);
-					int amountToAdd = GetAmount(GetMaxVolume(block, size), myAmmo.Volume, ammoSubTypeIds.Count);
-					AddToInventory(block.ComponentContainer, new MyObjectBuilder_AmmoMagazine() {SubtypeName = ammoSubType.SubtypeName}, amountToAdd, false);
-					Core.GeneralLog.WriteToLog("ProcessWeaponRestocking", $"Adding to inventory:\t{ammoSubType.SubtypeName}: {amountToAdd}");
-				}
+				MyDefinitionId ammoSubType = ammoSubTypeIds[Core.Random.Next(0, ammoSubTypeIds.Count)];
+				MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
+				int amountToAdd = GetAmount(GetMaxVolume(block, size), myAmmo.Volume);
+				AddToInventory(block.ComponentContainer, new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }, amountToAdd, false);
+				
+				
+				//foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
+				//{
+				//	MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
+				//	//int amountToAdd = (int)Math.Ceiling((GetMaxVolume(block, size) / myAmmo.Volume) / ammoSubTypeIds.Count);
+				//	int amountToAdd = GetAmount(GetMaxVolume(block, size), myAmmo.Volume, ammoSubTypeIds.Count);
+				//	Core.GeneralLog.WriteToLog("ProcessWeaponRestocking", $"Adding to inventory:\t{ammoSubType.SubtypeName}: {amountToAdd}");
+				//	AddToInventory(block.ComponentContainer, new MyObjectBuilder_AmmoMagazine() {SubtypeName = ammoSubType.SubtypeName}, amountToAdd, false);
+				//}
 			}
 			catch (Exception e)
 			{
@@ -377,9 +403,10 @@ namespace SpawnManager.Support
 			return volumeFunc.Invoke(size, block.SubtypeId);
 		}
 
-		private static int GetAmount(double blockVolume, double itemVolume, int count)
+		private static int GetAmount(double blockVolume, double itemVolume)
 		{
-			return (int)Math.Ceiling((blockVolume / itemVolume) / count);
+			Core.GeneralLog.WriteToLog("GetAmount", $"blockVolume:\t{blockVolume}\titemVolume:\t{itemVolume}\tReturning:\t{(int)Math.Ceiling((blockVolume / itemVolume))}");
+			return (int)Math.Ceiling((blockVolume / itemVolume));
 		}
 	}
 }

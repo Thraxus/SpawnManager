@@ -7,6 +7,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
 using SpawnManager.Support;
+using VRage;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.ComponentSystem;
 using VRage.ObjectBuilders;
@@ -72,20 +73,16 @@ namespace SpawnManager.Tools
 			{
 				MyLargeTurretBaseDefinition myLargeTurret = (MyLargeTurretBaseDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
 				List<BlockSideEnum> mountPoints = myLargeTurret.MountPoints.Select(myMountPoint => myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side).ToList();
-				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeTurretBase", $"Block {myLargeTurret.GetType()} targeted for replacement...");
-				//myLargeTurret.MountPointLocalNormalToBlockLocal()
 				List<WeaponInformation> replacementOptions = LargeGridWeaponTurretBases.FindAll(x =>
 					//x.ModName != "Vanilla" &&
 					x.SubtypeId != block.SubtypeId &&
 					x.MountPoints.Intersect(mountPoints).Any() &&
 					x.SizeX == myLargeTurret.Size.X &&
-					x.SizeY == myLargeTurret.Size.Y //&&
-					//x.SizeZ <= myLargeTurret.Size.Z + 1
+					x.SizeY == myLargeTurret.Size.Y &&
+					x.SizeZ <= myLargeTurret.Size.Z// + 1
 					);
 				if (replacementOptions.Count == 0) return block;
 				block = CreateReplacementTurretBase(replacementOptions[Core.Random.Next(0, replacementOptions.Count)], block, size, myLargeTurret);
-				//MyLargeTurretBaseDefinition myNewLargeTurret = (MyLargeTurretBaseDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
-				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessLargeTurretBase", $"Block {block.SubtypeId} has been replaced...");
 			}
 			catch (Exception e)
 			{
@@ -96,9 +93,6 @@ namespace SpawnManager.Tools
 
 		private static MyObjectBuilder_CubeBlock CreateReplacementTurretBase(WeaponInformation weaponInformation, MyObjectBuilder_CubeBlock block, MyCubeSize size, MyLargeTurretBaseDefinition myLargeTurret)
 		{
-			//weaponInformation.MyLargeTurret.GeneratedBlockType
-			//MyObjectBuilder_CubeBlock myNewWeapon = new MyObjectBuilder_TurretBase()
-			Core.GeneralLog.WriteToLog("CreateReplacementTurretBase-ProcessWeaponBlock", $"Block {weaponInformation.SubtypeId} chosen as the replacement...");
 			MyObjectBuilder_CubeBlock myNewWeapon = MyObjectBuilderSerializer.CreateNewObject(
 				weaponInformation.TypeId, weaponInformation.SubtypeName) as MyObjectBuilder_CubeBlock;
 			if (myNewWeapon == null)
@@ -115,8 +109,6 @@ namespace SpawnManager.Tools
 			((MyObjectBuilder_TurretBase)myNewWeapon).BlockOrientation = block.BlockOrientation;
 			((MyObjectBuilder_TurretBase)myNewWeapon).ColorMaskHSV = block.ColorMaskHSV;
 			((MyObjectBuilder_TurretBase)myNewWeapon).Min = block.Min;
-			//((MyObjectBuilder_TurretBase)myNewWeapon).Name = "Retrofit " + ((MyObjectBuilder_TurretBase)myNewWeapon).Name;
-			//((MyObjectBuilder_TurretBase)myNewWeapon).CustomName = "Retrofit " + ((MyObjectBuilder_TurretBase)myNewWeapon).CustomName;
 			((MyObjectBuilder_TurretBase)myNewWeapon).ShowInTerminal = true;
 			((MyObjectBuilder_TurretBase)myNewWeapon).ShowOnHUD = false;
 			((MyObjectBuilder_TurretBase)myNewWeapon).TargetCharacters = ((MyObjectBuilder_TurretBase)block).TargetCharacters;
@@ -137,15 +129,12 @@ namespace SpawnManager.Tools
 						TypeId = "MyInventoryBase",
 						Component = new MyObjectBuilder_Inventory()
 						{
-							InventoryFlags = MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive,
-							RemoveEntityOnEmpty = false
+							InventoryFlags = MyInventoryFlags.CanReceive,
+							RemoveEntityOnEmpty = false,
 						}
 					}
 				}
 			};
-			//((MyObjectBuilder_TurretBase)myNewWeapon).Inventory = new MyObjectBuilder_Inventory();
-			//((MyObjectBuilder_TurretBase)myNewWeapon).GunBase = new MyObjectBuilder_GunBase();
-
 			return myNewWeapon;
 		}
 
@@ -155,20 +144,16 @@ namespace SpawnManager.Tools
 			{
 				MyWeaponBlockDefinition myWeaponBlock = (MyWeaponBlockDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
 				List<BlockSideEnum> mountPoints = myWeaponBlock.MountPoints.Select(myMountPoint => myMountPoint.GetObjectBuilder(myMountPoint.Normal).Side).ToList();
-				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessWeaponBlock", $"Block {myWeaponBlock.GetType()} targeted for replacement...");
-				//myLargeTurret.MountPointLocalNormalToBlockLocal()
 				List<WeaponInformation> replacementOptions = LargeGridWeaponBlocks.FindAll(x =>
 						//x.ModName != "Vanilla" &&
 						x.SubtypeId != block.SubtypeId &&
 						x.MountPoints.Intersect(mountPoints).Any() &&
 						x.SizeX == myWeaponBlock.Size.X &&
-						x.SizeY == myWeaponBlock.Size.Y //&&
-					//x.SizeZ <= myLargeTurret.Size.Z + 1
+						x.SizeY == myWeaponBlock.Size.Y &&
+						x.SizeZ <= myWeaponBlock.Size.Z //+ 1
 				);
 				if (replacementOptions.Count == 0) return block;
 				block = CreateReplacementWeaponBlock(replacementOptions[Core.Random.Next(0, replacementOptions.Count)], block, size, myWeaponBlock);
-				//MyWeaponBlockDefinition myNewLargeTurret = (MyWeaponBlockDefinition)MyDefinitionManager.Static.GetCubeBlockDefinition(block.GetId());
-				Core.GeneralLog.WriteToLog("WeaponSwapper-ProcessWeaponBlock", $"Block {block.SubtypeId} has been replaced...");
 			}
 			catch (Exception e)
 			{
@@ -179,9 +164,7 @@ namespace SpawnManager.Tools
 
 		private static MyObjectBuilder_CubeBlock CreateReplacementWeaponBlock(WeaponInformation weaponInformation, MyObjectBuilder_CubeBlock block, MyCubeSize size, MyWeaponBlockDefinition myWeaponBlock)
 		{
-			//weaponInformation.MyLargeTurret.GeneratedBlockType
-			//MyObjectBuilder_CubeBlock myNewWeapon = new MyObjectBuilder_TurretBase()
-			Core.GeneralLog.WriteToLog("CreateReplacementWeaponBlock-ProcessWeaponBlock", $"Block {weaponInformation.SubtypeId} chosen as the replacement...");
+			int zOffset = Math.Abs(myWeaponBlock.Size.Z) - Math.Abs(weaponInformation.SizeZ);
 			MyObjectBuilder_CubeBlock myNewWeapon = MyObjectBuilderSerializer.CreateNewObject(
 				weaponInformation.TypeId, weaponInformation.SubtypeName) as MyObjectBuilder_CubeBlock;
 			if (myNewWeapon == null)
@@ -197,11 +180,17 @@ namespace SpawnManager.Tools
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).BlockOrientation = block.BlockOrientation;
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).ColorMaskHSV = block.ColorMaskHSV;
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).Min = block.Min;
-			//((MyObjectBuilder_UserControllableGun)myNewWeapon).Name = "Retrofit " + ((MyObjectBuilder_UserControllableGun)block).Name;
-			//((MyObjectBuilder_UserControllableGun)myNewWeapon).CustomName = "Retrofit " + ((MyObjectBuilder_UserControllableGun)block).CustomName;
+			if (zOffset != 0 && block.Min.Z < 0) ((MyObjectBuilder_UserControllableGun) myNewWeapon).Min.Z += zOffset;
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).ShowInTerminal = true;
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).ShowOnHUD = false;
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).Enabled = ((MyObjectBuilder_UserControllableGun)block).Enabled;
+			if (weaponInformation.TypeId == typeof(MyObjectBuilder_SmallMissileLauncherReload) || weaponInformation.TypeId == typeof(MyObjectBuilder_SmallMissileLauncher))
+			{
+				if (weaponInformation.TypeId == typeof(MyObjectBuilder_SmallMissileLauncherReload))
+					((MyObjectBuilder_SmallMissileLauncherReload)myNewWeapon).Inventory = new MyObjectBuilder_Inventory();
+				else ((MyObjectBuilder_SmallMissileLauncher)myNewWeapon).Inventory = new MyObjectBuilder_Inventory();
+				return myNewWeapon;
+			}
 			((MyObjectBuilder_UserControllableGun)myNewWeapon).ComponentContainer = new MyObjectBuilder_ComponentContainer()
 			{
 				Components = new List<MyObjectBuilder_ComponentContainer.ComponentData>()
@@ -211,15 +200,12 @@ namespace SpawnManager.Tools
 						TypeId = "MyInventoryBase",
 						Component = new MyObjectBuilder_Inventory()
 						{
-							InventoryFlags = MyInventoryFlags.CanSend | MyInventoryFlags.CanReceive,
-							RemoveEntityOnEmpty = false
+							InventoryFlags = MyInventoryFlags.CanReceive,
+							RemoveEntityOnEmpty = false,
 						}
 					}
 				}
 			};
-			//((MyObjectBuilder_UserControllableGun)myNewWeapon).Inventory = new MyObjectBuilder_Inventory();
-			//((MyObjectBuilder_UserControllableGun)myNewWeapon).GunBase = new MyObjectBuilder_GunBase();
-
 			return myNewWeapon;
 		}
 
