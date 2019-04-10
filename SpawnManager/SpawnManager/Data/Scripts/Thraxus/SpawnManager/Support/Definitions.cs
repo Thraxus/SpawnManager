@@ -4,8 +4,11 @@ using System.Linq;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using SpaceEngineers.Game.Entities.Blocks;
+using SpaceEngineers.Game.ModAPI;
 using SpawnManager.Eem;
 using VRage.Game;
 using VRage.ObjectBuilders;
@@ -20,7 +23,7 @@ namespace SpawnManager.Support
 {
 	public static class Definitions
 	{
-		private static readonly float InventoryMultiplier = MyAPIGateway.Session.SessionSettings.InventorySizeMultiplier;
+		private static readonly float InventoryMultiplier = MyAPIGateway.Session.SessionSettings.BlocksInventorySizeMultiplier;
 		
 		// Large Grid Max Volumes
 		private static readonly double LargeBlockSmallContainer = 15.625 * InventoryMultiplier;
@@ -149,7 +152,11 @@ namespace SpawnManager.Support
 			{
 				MyReactorDefinition reactorDefinition = MyDefinitionManager.Static.GetCubeBlockDefinition(cube.GetId()) as MyReactorDefinition;
 				if (reactorDefinition == null) return fuelIds;
-				fuelIds.Add(reactorDefinition.FuelId);
+				foreach (MyReactorDefinition.FuelInfo fuel in reactorDefinition.FuelInfos)
+				{
+					Core.GeneralLog.WriteToLog("Definitions",$"FuelId:	{fuel.FuelId}");
+				}
+				fuelIds.Add(reactorDefinition.FuelInfos[0].FuelId);
 			}
 			catch (Exception e)
 			{
@@ -179,7 +186,8 @@ namespace SpawnManager.Support
 			List<MyDefinitionId> ammoSubTypeIds = new List<MyDefinitionId>();
 			try
 			{
-				MyWeaponDefinition myWeapon = MyDefinitionManager.Static.GetWeaponDefinition(((MyWeaponBlockDefinition) MyDefinitionManager.Static.GetCubeBlockDefinition(cube.GetId())).WeaponDefinitionId);
+				MyWeaponDefinition myWeapon = MyDefinitionManager.Static.GetWeaponDefinition(((MyWeaponBlockDefinition) 
+					MyDefinitionManager.Static.GetCubeBlockDefinition(cube.GetId())).WeaponDefinitionId);
 				if (myWeapon == null) return ammoSubTypeIds;
 				ammoSubTypeIds.AddRange(myWeapon.AmmoMagazinesId);
 			}
@@ -357,6 +365,8 @@ namespace SpawnManager.Support
 
 			try
 			{
+				PrintSessionSettings();
+
 				foreach (MyDefinitionBase definition in MyDefinitionManager.Static.GetAllDefinitions())
 				{
 					Action<MyStringHash, string, string> action;
@@ -375,6 +385,7 @@ namespace SpawnManager.Support
 						Core.GeneralLog.WriteToLog("WeaponDefinitions", $".GetType failed?! {e}");
 					}
 				}
+				Core.GeneralLog.WriteToLog("Definitions", $"Weapon Definitions Initialized...");
 
 				foreach (MySpawnGroupDefinition spawnGroupDefinition in MyDefinitionManager.Static.GetSpawnGroupDefinitions())
 				{
@@ -384,14 +395,17 @@ namespace SpawnManager.Support
 						spawnGroupPrefabDefinitions.Add(new SpawnGroupPrefabDefinition(spawnGroupPrefab.SubtypeId, spawnGroupPrefab.Position, spawnGroupPrefab.Speed, spawnGroupPrefab.BeaconText));
 					SpawnGroupDefinitions.Add(spawnGroupDefinition.Id.SubtypeName, new SpawnGroupDefinition(spawnGroupDefinition.Frequency, spawnGroupDefinition.IsPirate, spawnGroupDefinition.IsEncounter, spawnGroupDefinition.ReactorsOn, spawnGroupPrefabDefinitions));
 				}
+				Core.GeneralLog.WriteToLog("Definitions", $"SpawnGroup Definitions Initialized...");
 
-				foreach (MyPirateAntennaDefinition pirateAntennaDefinition in MyDefinitionManager.Static.GetPirateAntennaDefinitions())
-				{
-					List<string> spawnGroups = new List<string>();
-					foreach (MySpawnGroupDefinition mySpawnGroupDefinition in pirateAntennaDefinition.SpawnGroupSampler)
-						spawnGroups.Add(mySpawnGroupDefinition.Id.SubtypeName);
-					PirateAntennaDefinitions.Add(pirateAntennaDefinition.Name, new PirateAntennaDefinition(pirateAntennaDefinition.SpawnDistance, pirateAntennaDefinition.SpawnTimeMs, pirateAntennaDefinition.FirstSpawnTimeMs, pirateAntennaDefinition.MaxDrones, spawnGroups));
-				}
+				// causing a crash, need to revisit
+				//foreach (MyPirateAntennaDefinition pirateAntennaDefinition in MyDefinitionManager.Static.GetPirateAntennaDefinitions())
+				//{
+				//	List<string> spawnGroups = new List<string>();
+				//	foreach (MySpawnGroupDefinition mySpawnGroupDefinition in pirateAntennaDefinition.SpawnGroupSampler)
+				//		spawnGroups.Add(mySpawnGroupDefinition.Id.SubtypeName);
+				//	PirateAntennaDefinitions.Add(pirateAntennaDefinition.Name, new PirateAntennaDefinition(pirateAntennaDefinition.SpawnDistance, pirateAntennaDefinition.SpawnTimeMs, pirateAntennaDefinition.FirstSpawnTimeMs, pirateAntennaDefinition.MaxDrones, spawnGroups));
+				//}
+				//Core.GeneralLog.WriteToLog("Definitions", $"PirateAntenna Definitions Initialized...");
 			}
 			catch (Exception e)
 			{
@@ -400,6 +414,13 @@ namespace SpawnManager.Support
 
 			_registered = true;
 			Core.GeneralLog.WriteToLog("Definitions", "Defined!... :)");
+		}
+
+		private static void PrintSessionSettings()
+		{
+			Core.GeneralLog.WriteToLog("PrintSessionSettings", $"BlocksInventorySizeMultiplier:\t{MyAPIGateway.Session.SessionSettings.BlocksInventorySizeMultiplier}");
+			Core.GeneralLog.WriteToLog("PrintSessionSettings", $"InventorySizeMultiplier:\t{MyAPIGateway.Session.SessionSettings.InventorySizeMultiplier}");
+			Core.GeneralLog.WriteToLog("PrintSessionSettings", $"OptimalSpawnDistance:\t{MyAPIGateway.Session.SessionSettings.OptimalSpawnDistance}");
 		}
 
 		public static void Close()

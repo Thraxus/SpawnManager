@@ -15,6 +15,7 @@ namespace SpawnManager.Networking
 		private const string SpawnTestCase = "spawntest";
 		private const string SpawnModdedTestCase = "spawnmodded";
 		private const string SpawnPrefabPrefix = "spawnprefab";
+		private const string SpawnGroupPrefix = "spawngroup";
 
 		private static readonly Dictionary<string, Action<string>> ChatAction = new Dictionary<string, Action<string>>
 		{
@@ -23,6 +24,7 @@ namespace SpawnManager.Networking
 			{ ShowProfilingLogPrefix, ShowProfilingLog },
 			{ SpawnTestCase, SpawnTestClass.SpawnTestCase },
 			{ SpawnPrefabPrefix, SpawnTestClass.SpawnPrefab },
+			{ SpawnGroupPrefix, SpawnTestClass.SpawnGroup },
 			{ SpawnModdedTestCase, SpawnTestClass.SpawnTestCaseModded }
 		};
 

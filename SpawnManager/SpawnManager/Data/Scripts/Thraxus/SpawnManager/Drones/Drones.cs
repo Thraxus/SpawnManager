@@ -47,7 +47,7 @@ namespace SpawnManager.Drones
             }
             catch (Exception e)
             {
-                Core.GeneralLog.WriteToLog("OnEntityAdd", $"OnEntityAdd interrupted - exception:\t{e}");
+                Core.GeneralLog.WriteToLog("Drones: OnEntityAdd", $"OnEntityAdd interrupted - exception:\t{e}");
             }
         }
 

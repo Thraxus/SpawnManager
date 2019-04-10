@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.ModAPI;
 using VRage;
 using VRage.Game;
 using VRage.Game.ObjectBuilders.ComponentSystem;
@@ -12,11 +13,13 @@ namespace SpawnManager.Support
 {
 	public static class CubeProcessing
 	{ // IMyModel has Vector3I[] BoneMapping { get; } - BoneMapping!  Make broken ships a thing! DO IT!
+		private const string ModuleName = "CubeProcessing";
+
 		public static void Close()
 		{
 			CubeBlockProcessing.Clear();
 			PbPrograms.Clear();
-			Core.GeneralLog.WriteToLog("CubeProcessing", "Done processing...");
+			Core.GeneralLog.WriteToLog($"{ModuleName}", "Done processing...");
 		}
 
 		public static readonly Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>> CubeBlockProcessing = new Dictionary<MyObjectBuilderType, Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize>>
@@ -45,6 +48,11 @@ namespace SpawnManager.Support
 			public readonly string OriginalName;
 			public readonly string Program;
 
+			/// <inheritdoc />
+			public override string ToString()
+			{
+				return $"{OriginalName}\t{NewName}";
+			}
 
 			public PbReplacement(string newName, string oldName, string program)
 			{
@@ -54,9 +62,14 @@ namespace SpawnManager.Support
 			}
 		}
 
-		private static string TempPbName => $"EEMPbTemp{DateTime.Now:mmss.fffff}";
+		private static int pbCounter;
 
-		public static Dictionary<long, List<PbReplacement>> PbPrograms = new Dictionary<long, List<PbReplacement>>();
+		private static readonly Random CubeProcessingRandom = new Random();
+
+		//private static string TempPbName => $"EEMPbTemp{CubeProcessingRandom.Next(0,100)}{DateTime.Now:mmssfffff}";
+		private static string TempPbName => $"EEMPbTemp{pbCounter++}";
+
+		public static readonly Dictionary<long, List<PbReplacement>> PbPrograms = new Dictionary<long, List<PbReplacement>>();
 
 		public static void GeneralGridSettings(MyObjectBuilder_CubeGrid grid, Options options)
 		{
@@ -108,8 +121,10 @@ namespace SpawnManager.Support
 			if (!options.Restock) return;
 			try
 			{
+				if (options.ClearCargoContainers)
+					ClearInventory(block.ComponentContainer);
 				//((MyObjectBuilder_CargoContainer)block).Inventory.Clear();
-				ClearInventory(block.ComponentContainer);
+
 			}
 			catch (Exception e)
 			{
@@ -121,7 +136,8 @@ namespace SpawnManager.Support
 		{
 			try
 			{
-				
+				if (options.ClearCargoContainers)
+					ClearInventory(block.ComponentContainer);
 			}
 			catch (Exception e)
 			{
@@ -161,9 +177,10 @@ namespace SpawnManager.Support
 				((MyObjectBuilder_OxygenGenerator)block).Inventory.Items.Add(
 					new MyObjectBuilder_InventoryItem
 					{
-						Amount = (int)(GetMaxVolume(block, size) / iceDefinition.Volume),
+						Amount = (int)((GetMaxVolume(block, size) / iceDefinition.Volume)*0.90), // I want to leave some room for bottles
 						PhysicalContent = ice
 					});
+				Core.GeneralLog.WriteToLog("MyObjectBuilder_OxygenGenerator", $"Amount:\t{(int)((GetMaxVolume(block, size) / iceDefinition.Volume) * 0.9)}");
 			}
 			catch (Exception e)
 			{
@@ -190,15 +207,16 @@ namespace SpawnManager.Support
 			{
 				if (options.PreservePrograms)
 				{
-					//Core.GeneralLog.WriteToLog("ProcessMyProgrammableBlock", $"Entity: {options.EntityId}");
-					string tempPbName = TempPbName;
-					if(PbPrograms.ContainsKey(options.EntityId))
-						PbPrograms[options.EntityId].Add(new PbReplacement(((MyObjectBuilder_MyProgrammableBlock)block).CustomName, TempPbName, ((MyObjectBuilder_MyProgrammableBlock)block).Program));
+					//Core.GeneralLog.WriteToLog("ProcessMyProgrammableBlock", $"Entity:\t{options.EntityId}\t{PbPrograms.Count}");
+					List<PbReplacement> tmpPbReplacements;
+					PbReplacement pbReplacement = new PbReplacement(TempPbName, ((MyObjectBuilder_MyProgrammableBlock)block).CustomName, ((MyObjectBuilder_MyProgrammableBlock)block).Program);
+					if (PbPrograms.TryGetValue(options.EntityId, out tmpPbReplacements))
+						PbPrograms[options.EntityId].Add(pbReplacement);
 					else
-						PbPrograms.Add(options.EntityId, new List<PbReplacement> {(new PbReplacement(((MyObjectBuilder_MyProgrammableBlock)block).CustomName, TempPbName, ((MyObjectBuilder_MyProgrammableBlock)block).Program))});
-					((MyObjectBuilder_MyProgrammableBlock)block).CustomName = tempPbName;
+						PbPrograms.Add(options.EntityId, new List<PbReplacement> {pbReplacement});
+					((MyObjectBuilder_MyProgrammableBlock)block).CustomName = pbReplacement.NewName;
 				}
-				((MyObjectBuilder_MyProgrammableBlock)block).Program = null;
+				((MyObjectBuilder_MyProgrammableBlock)block).Program = "";
 			}
 			catch (Exception e)
 			{
@@ -236,7 +254,10 @@ namespace SpawnManager.Support
 				MyObjectBuilder_Ingot fuel = new MyObjectBuilder_Ingot { SubtypeName = fuelList[0].SubtypeName };
 				MyPhysicalItemDefinition fuelDefinition = MyDefinitionManager.Static.GetPhysicalItemDefinition(fuel.GetId());
 				//AddToInventory(block.ComponentContainer, fuel, (int)(GetMaxVolume(block, size) / fuelDefinition.Volume), true);
-				AddToInventory(block.ComponentContainer, fuel, GetAmount(GetMaxVolume(block, size), fuelDefinition.Volume), true);
+				int amountToAdd = GetAmount(GetMaxVolume(block, size), fuelDefinition.Volume);
+				if (options.MaxAmmo != 0 && amountToAdd > options.MaxUranium)
+					amountToAdd = options.MaxAmmo;
+				AddToInventory(block.ComponentContainer, fuel, amountToAdd, true);
 			}
 			catch (Exception e)
 			{
@@ -347,9 +368,11 @@ namespace SpawnManager.Support
 				MyDefinitionId ammoSubType = ammoSubTypeIds[Core.Random.Next(0, ammoSubTypeIds.Count)];
 				MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
 				int amountToAdd = GetAmount(GetMaxVolume(block, size), myAmmo.Volume);
+				if (options.MaxAmmo != 0 && amountToAdd > options.MaxAmmo)
+					amountToAdd = options.MaxAmmo;
 				AddToInventory(block.ComponentContainer, new MyObjectBuilder_AmmoMagazine() { SubtypeName = ammoSubType.SubtypeName }, amountToAdd, false);
-				
-				
+
+
 				//foreach (MyDefinitionId ammoSubType in ammoSubTypeIds)
 				//{
 				//	MyAmmoMagazineDefinition myAmmo = MyDefinitionManager.Static.GetAmmoMagazineDefinition(ammoSubType);
@@ -390,9 +413,9 @@ namespace SpawnManager.Support
 
 		private static List<MyDefinitionId> GetItemDefinitionList(MyObjectBuilder_CubeBlock block)
 		{
-			Func<MyObjectBuilder_CubeBlock, List<MyDefinitionId>> getParachuteMaterialFunc;
-			Definitions.RestockDefinitions.TryGetValue(block.GetType(), out getParachuteMaterialFunc);
-			return getParachuteMaterialFunc?.Invoke(block);
+			Func<MyObjectBuilder_CubeBlock, List<MyDefinitionId>> getItemDefFunc;
+			Definitions.RestockDefinitions.TryGetValue(block.GetType(), out getItemDefFunc);
+			return getItemDefFunc?.Invoke(block);
 		}
 
 		private static double GetMaxVolume(MyObjectBuilder_Base block, MyCubeSize size)

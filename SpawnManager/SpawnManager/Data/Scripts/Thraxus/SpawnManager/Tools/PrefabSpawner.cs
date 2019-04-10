@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Game;
 using Sandbox.ModAPI;
 using SpawnManager.Support;
 using VRage;
+using VRage.Collections;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRageMath;
@@ -35,13 +38,29 @@ namespace SpawnManager.Tools
 			});
 		}
 
+		public static void SpawnSpawmGroup(string spawnGroup, MatrixD spawnOrigin, Options options = null)
+		{
+			MyAPIGateway.Parallel.Start(delegate
+			{
+				List<MySpawnGroupDefinition> spawnGroupDefinitions = new List<MySpawnGroupDefinition>(MyDefinitionManager.Static.GetSpawnGroupDefinitions());
+				MySpawnGroupDefinition spawnGroupDefinition = spawnGroupDefinitions.Find(x => x.Id.SubtypeName == spawnGroup);
+				foreach (MySpawnGroupDefinition.SpawnGroupPrefab spawnGroupPrefab in spawnGroupDefinition.Prefabs)
+				{
+					Vector3D prefabSpawnPos = Vector3D.Transform(spawnGroupPrefab.Position, spawnOrigin);
+					MatrixD prefabSpawnMatrix = spawnOrigin;
+					prefabSpawnMatrix.Translation = prefabSpawnPos;
+					SpawnPrefab(spawnGroupPrefab.SubtypeId, prefabSpawnMatrix, options);
+					MyAPIGateway.Parallel.Sleep(1000);
+				}
+			});
+		}
+
 		public static void SpawnPrefab(string prefabToSpawn, MatrixD spawnOrigin, Options options = null)
 		{
 			if (options == null)
 				options = new Options();
 
 			List<MyObjectBuilder_EntityBase> tempList = new List<MyObjectBuilder_EntityBase>();
-
 			try
 			{
 				MyAPIGateway.Parallel.Start(delegate
@@ -50,7 +69,7 @@ namespace SpawnManager.Tools
 					List<MyObjectBuilder_RemoteControl> myRemoteControlList = new List<MyObjectBuilder_RemoteControl>();
 					MyPrefabDefinition prefab = MyDefinitionManager.Static.GetPrefabDefinition(prefabToSpawn);
 
-					WeaponSwapper.ProcessPrefab(prefab, options);
+					//WeaponSwapper.ProcessPrefab(prefab, options);
 
 					if (prefab.CubeGrids[0] == null)
 						return;

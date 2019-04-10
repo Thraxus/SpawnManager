@@ -15,6 +15,7 @@ namespace SpawnManager.Support
 	        Precise, Loose, ExtraLoose
 	    }
 
+		public bool ClearCargoContainers = false;
 		public bool DestructableBlocks = true;
 		public bool DisableDampners = true;
 		public bool ForcePhysics = false;
@@ -36,6 +37,9 @@ namespace SpawnManager.Support
 
 		public float BeaconBroadcastRadius = 30000;
 		public float GeneralDamageModifier = 1;
+		
+		public int MaxAmmo = 100;
+		public int MaxUranium = 100;
 
 		public long EntityId = 0;
 		public long OwnerId = 0;

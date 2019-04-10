@@ -47,6 +47,7 @@ namespace SpawnManager
 			if (!IsServer || _registerLate) return;
 			Definitions.Register();
 			Drones.Drones.Register();
+			PostProcessing.Register();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			GeneralLog.WriteToLog("Core", $"RegisterLate Complete... {UpdateOrder}");
 			_registerLate = true;
@@ -58,6 +59,7 @@ namespace SpawnManager
 			GeneralLog.WriteToLog("Core", "Unloading...");
 			CubeProcessing.Close();
 			Drones.Drones.Close();
+			PostProcessing.Close();
 			Definitions.Close();
 			Messaging.Close();
 			ProfilerLog.Close();

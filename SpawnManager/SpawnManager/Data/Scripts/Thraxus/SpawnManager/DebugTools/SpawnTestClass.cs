@@ -28,6 +28,16 @@ namespace SpawnManager.DebugTools
 			SpawnPrefab("SubGridTestHell-Enhanced", initialMatrixD);
 		}
 
+		public static void SpawnGroup(string group)
+		{
+			const string prefix = "spawngroup";
+			MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
+			Core.GeneralLog.WriteToLog("SpawnGroup", $"Spawn Group:\t{group}");
+			initialMatrixD.Translation += initialMatrixD.Forward * 50;
+			Options options = new Options { OwnerId = 0, Restock = true };
+			PrefabSpawner.SpawnSpawmGroup(group.Replace(prefix, "").Trim(), initialMatrixD, options);
+		}
+
 		private static void SpawnPrefab(string prefab, MatrixD position)
         {
 	        Options options = new Options { Restock = true};
