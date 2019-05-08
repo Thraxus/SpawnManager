@@ -25,13 +25,15 @@ namespace SpawnManager.Support
 		public bool IgnoreCollisions = false;
 		public bool PowerDownGrid = false;
 		public bool PreservePrograms = true;
-		public bool RenameBeacon = false;
 		public bool Restock = false;
 		public bool SetAngularVelocity = false;
 		public bool SetFactionShareMode = true;
 		public bool SetLinearVelocity = false;
 		public bool SpawnAsWireframe = false;
 		public bool SpawnDamaged = false;
+		public bool UpdateAntennaText = false;
+		public bool UpdateBeaconText = false;
+		public bool UpdateBeaconBroadcastRadius = false;
 
 		public double SpawmDamagedPercent = 0.5;
 
@@ -48,8 +50,9 @@ namespace SpawnManager.Support
 		public SerializableVector3 LinearVelocity = new SerializableVector3();
 		public SerializableVector3 AngularVelocity = new SerializableVector3();
 
+		public string AntennaText = "";
 		public string BeaconText = "";
-		
+
 		public MyOwnershipShareModeEnum FactionShareMode = MyOwnershipShareModeEnum.Faction;
 		public Precision CollisionPrecision = Precision.ExtraLoose;
 	    public EnvironmentType Environment = EnvironmentType.Space;

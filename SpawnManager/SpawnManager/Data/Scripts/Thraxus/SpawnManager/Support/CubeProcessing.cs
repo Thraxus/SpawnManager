@@ -112,8 +112,8 @@ namespace SpawnManager.Support
 
 		private static void ProcessBeacon(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)
 		{
-			if (options.RenameBeacon) ((MyObjectBuilder_Beacon)block).CustomName = options.BeaconText;
-			if (options.RenameBeacon) ((MyObjectBuilder_Beacon)block).BroadcastRadius = options.BeaconBroadcastRadius;
+			if (options.UpdateBeaconText) ((MyObjectBuilder_Beacon)block).CustomName = options.BeaconText;
+			if (options.UpdateBeaconBroadcastRadius) ((MyObjectBuilder_Beacon)block).BroadcastRadius = options.BeaconBroadcastRadius;
 		}
 
 		private static void ProcessCargoContainer(MyObjectBuilder_CubeBlock block, Options options, MyCubeSize size)

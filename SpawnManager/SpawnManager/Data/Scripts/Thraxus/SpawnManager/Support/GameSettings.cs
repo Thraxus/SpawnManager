@@ -12,6 +12,11 @@ namespace SpawnManager.Support
             MyAPIGateway.Session.SessionSettings.EnableDrones = false;
             if (MyAPIGateway.Session.SessionSettings.SyncDistance <= 3000)
                 MyAPIGateway.Session.SessionSettings.SyncDistance = 10000;
-        }
+            if (MyAPIGateway.Session.SessionSettings.PiratePCU <= 50000)
+	            MyAPIGateway.Session.SessionSettings.PiratePCU = 100000;
+
+            if (MyAPIGateway.Session.SessionSettings.TotalPCU <= 100000 && MyAPIGateway.Session.SessionSettings.TotalPCU != 0)
+	            MyAPIGateway.Session.SessionSettings.TotalPCU = 200000;
+		}
     }
 }

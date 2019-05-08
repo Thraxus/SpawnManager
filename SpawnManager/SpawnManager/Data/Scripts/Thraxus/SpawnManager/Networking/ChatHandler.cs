@@ -16,6 +16,7 @@ namespace SpawnManager.Networking
 		private const string SpawnModdedTestCase = "spawnmodded";
 		private const string SpawnPrefabPrefix = "spawnprefab";
 		private const string SpawnGroupPrefix = "spawngroup";
+		private const string SpawnEemTradePrefabs = "spawntrade";
 
 		private static readonly Dictionary<string, Action<string>> ChatAction = new Dictionary<string, Action<string>>
 		{
@@ -25,7 +26,8 @@ namespace SpawnManager.Networking
 			{ SpawnTestCase, SpawnTestClass.SpawnTestCase },
 			{ SpawnPrefabPrefix, SpawnTestClass.SpawnPrefab },
 			{ SpawnGroupPrefix, SpawnTestClass.SpawnGroup },
-			{ SpawnModdedTestCase, SpawnTestClass.SpawnTestCaseModded }
+			{ SpawnModdedTestCase, SpawnTestClass.SpawnTestCaseModded },
+			{ SpawnEemTradePrefabs, SpawnTestClass.SpawnEemTradePrefabs }
 		};
 
 		public static void HandleChatMessage(string message)
@@ -67,6 +69,8 @@ namespace SpawnManager.Networking
 			Messaging.ShowLocalNotification($"'{SpawnManagerChatCommandPrefix} {ShowProfilingLogPrefix}' will show the last 20 lines of the Profiling Log");
 			Messaging.ShowLocalNotification($"'{SpawnManagerChatCommandPrefix} {ShowGeneralLogPrefix}' will show the last 20 lines of the General Log");
 			Messaging.ShowLocalNotification($"'{SpawnManagerChatCommandPrefix} {SpawnPrefabPrefix}' spawns selected prefab (prefab name after prefix)");
+			Messaging.ShowLocalNotification($"'{SpawnManagerChatCommandPrefix} {SpawnGroupPrefix}' spawns selected spawn group (spawn group name after prefix)");
+			Messaging.ShowLocalNotification($"'{SpawnManagerChatCommandPrefix} {SpawnEemTradePrefabs}' spawns all EEM Trade ships");
 		}
 
 		private static void ShowGeneralLog(string s)
