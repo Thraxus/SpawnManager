@@ -1,66 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Game;
 using Sandbox.ModAPI;
 using SpawnManager.Support;
 using VRage;
-using VRage.Collections;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace SpawnManager.Tools
 {
-
 	public static class PrefabSpawner
 	{ // Remaarn#0887 [Discord] is responsible for the orientation / location matrix code.  Made my life a lot easier!  Thanks!
-
-		public static void SpawnPrefab(MyPrefabDefinition prefab)
-		{
-			MyAPIGateway.Parallel.Start(delegate
-			{
-				MyAPIGateway.Entities.RemapObjectBuilderCollection(prefab.CubeGrids);
-				foreach (MyObjectBuilder_CubeGrid grid in prefab.CubeGrids)
-					MyAPIGateway.Entities.CreateFromObjectBuilderParallel(grid, true);
-			});
-		}
-
-		public static void SpawnPrefab(MyObjectBuilder_CubeGrid[] grids)
-		{
-			MyAPIGateway.Parallel.Start(delegate
-			{
-				MyAPIGateway.Entities.RemapObjectBuilderCollection(grids);
-				foreach (MyObjectBuilder_CubeGrid grid in grids)
-					MyAPIGateway.Entities.CreateFromObjectBuilderParallel(grid, true);
-			});
-		}
-
-		public static void SpawnSpawmGroup(string spawnGroup, MatrixD spawnOrigin, Options options = null)
-		{
-			MyAPIGateway.Parallel.Start(delegate
-			{
-				List<MySpawnGroupDefinition> spawnGroupDefinitions = new List<MySpawnGroupDefinition>(MyDefinitionManager.Static.GetSpawnGroupDefinitions());
-				MySpawnGroupDefinition spawnGroupDefinition = spawnGroupDefinitions.Find(x => x.Id.SubtypeName == spawnGroup);
-				foreach (MySpawnGroupDefinition.SpawnGroupPrefab spawnGroupPrefab in spawnGroupDefinition.Prefabs)
-				{
-					Vector3D prefabSpawnPos = Vector3D.Transform(spawnGroupPrefab.Position, spawnOrigin);
-					MatrixD prefabSpawnMatrix = spawnOrigin;
-					prefabSpawnMatrix.Translation = prefabSpawnPos;
-					SpawnPrefab(spawnGroupPrefab.SubtypeId, prefabSpawnMatrix, options);
-					MyAPIGateway.Parallel.Sleep(1000);
-				}
-			});
-		}
-
 		public static void SpawnPrefab(string prefabToSpawn, MatrixD spawnOrigin, Options options = null)
 		{
 			if (options == null)
 				options = new Options();
 
 			List<MyObjectBuilder_EntityBase> tempList = new List<MyObjectBuilder_EntityBase>();
+
 			try
 			{
 				MyAPIGateway.Parallel.Start(delegate
@@ -69,7 +28,7 @@ namespace SpawnManager.Tools
 					List<MyObjectBuilder_RemoteControl> myRemoteControlList = new List<MyObjectBuilder_RemoteControl>();
 					MyPrefabDefinition prefab = MyDefinitionManager.Static.GetPrefabDefinition(prefabToSpawn);
 
-					//WeaponSwapper.ProcessPrefab(prefab, options);
+					WeaponSwapper.ProcessPrefab(prefab, options);
 
 					if (prefab.CubeGrids[0] == null)
 						return;
@@ -96,7 +55,7 @@ namespace SpawnManager.Tools
 							Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize> action;
 							CubeProcessing.CubeBlockProcessing.TryGetValue(block.GetType(), out action);
 							action?.Invoke(block, options, gridBuilder.GridSizeEnum);
-
+							
 							if (!cubeGridZero) continue;
 							if (block.GetType() == typeof(MyObjectBuilder_Cockpit)) myCockpitList.Add(block as MyObjectBuilder_Cockpit);
 							if (block.GetType() == typeof(MyObjectBuilder_RemoteControl)) myRemoteControlList.Add(block as MyObjectBuilder_RemoteControl);
