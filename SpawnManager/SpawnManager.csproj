@@ -114,37 +114,40 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SessionCoreStandin.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Eem\EemPrefabConfig.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Networking\ChatHandler.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Networking\MessageBase.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Networking\Messaging.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Core.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Support\CubeProcessing.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Eem\CustomPrefabConfiguration.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Support\Definitions.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Drones\Drones.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Support\GameSettings.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Support\PostProcessing.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\LootRandomizer.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Support\Options.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\PrefabSpawner.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\SpawnPoint.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\DebugTools\SpawnTestClass.cs" />
-    <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Tools\WeaponSwapper.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Log.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Profiler.cs" />
     <Compile Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Utilities\Queue.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-Enhanced.sbc" />
-    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-Modded.sbc" />
-    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-Modified.sbc" />
-    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-ModifiedConnected.sbc" />
-    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell-UpsideDownCockpit.sbc" />
-    <None Include="SpawnManager\Data\Prefabs\SubGridTestHell.sbc" />
+    <Folder Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Eem\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SpawnManager\Data\Scripts\Thraxus\SpawnManager\Eem\EemDefaultSetup.xml" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Ships\Dromedary_Trader.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Ships\Dromedary_Trader.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Ships\Helios_Wheel_Trader.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Ships\Helios_Wheel_Trader.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_IMDC_1781_Service_Platform.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_IMDC_1781_Service_Platform.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_Mahriane_34_Trading_Outpost.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_Mahriane_34_Trading_Outpost.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_Mahriane_56_Trading_Outpost.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_Mahriane_56_Trading_Outpost.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_Mahriane_8724_Service_Platform.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_Mahriane_8724_Service_Platform.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_XMC_603_Factory.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_XMC_603_Factory.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_XMC_718_Trading_Outpost.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_XMC_718_Trading_Outpost.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_XMC_99_Refinery.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\PE_XMC_99_Refinery.sbcB3" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\Phaeton_Trading_Outpost.sbc" />
+    <None Include="SpawnManager\Data\Prefabs\Traders\Stations\Phaeton_Trading_Outpost.sbcB3" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

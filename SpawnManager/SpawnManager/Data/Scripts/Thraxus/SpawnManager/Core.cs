@@ -1,7 +1,6 @@
 ﻿using System;
 using Sandbox.ModAPI;
 using SpawnManager.Networking;
-using SpawnManager.Support;
 using SpawnManager.Utilities;
 using VRage.Game.Components;
 
@@ -35,7 +34,6 @@ namespace SpawnManager
 			GeneralLog = new Log(GeneralLogName);
 			ProfilerLog = new Log(ProfilerLogName);
 			Messaging.Register();
-			GameSettings.Register();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.BeforeSimulation));
 			Random = new Random();
 			GeneralLog.WriteToLog("Core", $"RegisterEarly Complete... {UpdateOrder}");
@@ -45,9 +43,6 @@ namespace SpawnManager
 		private void RegisterLate()
 		{
 			if (!IsServer || _registerLate) return;
-			Definitions.Register();
-			Drones.Drones.Register();
-			PostProcessing.Register();
 			MyAPIGateway.Utilities.InvokeOnGameThread(() => SetUpdateOrder(MyUpdateOrder.NoUpdate));
 			GeneralLog.WriteToLog("Core", $"RegisterLate Complete... {UpdateOrder}");
 			_registerLate = true;
@@ -57,10 +52,6 @@ namespace SpawnManager
 		{
 			if (!IsServer) return;
 			GeneralLog.WriteToLog("Core", "Unloading...");
-			CubeProcessing.Close();
-			Drones.Drones.Close();
-			PostProcessing.Close();
-			Definitions.Close();
 			Messaging.Close();
 			ProfilerLog.Close();
 			GeneralLog.Close();

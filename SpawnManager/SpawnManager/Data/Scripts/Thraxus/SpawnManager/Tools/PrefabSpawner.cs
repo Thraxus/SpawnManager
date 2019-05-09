@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
-using Sandbox.Game;
 using Sandbox.ModAPI;
-using SpawnManager.Support;
 using VRage;
-using VRage.Collections;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRageMath;
@@ -18,47 +14,9 @@ namespace SpawnManager.Tools
 	public static class PrefabSpawner
 	{ // Remaarn#0887 [Discord] is responsible for the orientation / location matrix code.  Made my life a lot easier!  Thanks!
 
-		public static void SpawnPrefab(MyPrefabDefinition prefab)
+		public static void SpawnPrefab(string prefabToSpawn, MatrixD spawnOrigin)
 		{
-			MyAPIGateway.Parallel.Start(delegate
-			{
-				MyAPIGateway.Entities.RemapObjectBuilderCollection(prefab.CubeGrids);
-				foreach (MyObjectBuilder_CubeGrid grid in prefab.CubeGrids)
-					MyAPIGateway.Entities.CreateFromObjectBuilderParallel(grid, true);
-			});
-		}
-
-		public static void SpawnPrefab(MyObjectBuilder_CubeGrid[] grids)
-		{
-			MyAPIGateway.Parallel.Start(delegate
-			{
-				MyAPIGateway.Entities.RemapObjectBuilderCollection(grids);
-				foreach (MyObjectBuilder_CubeGrid grid in grids)
-					MyAPIGateway.Entities.CreateFromObjectBuilderParallel(grid, true);
-			});
-		}
-
-		public static void SpawnSpawmGroup(string spawnGroup, MatrixD spawnOrigin, Options options = null)
-		{
-			MyAPIGateway.Parallel.Start(delegate
-			{
-				List<MySpawnGroupDefinition> spawnGroupDefinitions = new List<MySpawnGroupDefinition>(MyDefinitionManager.Static.GetSpawnGroupDefinitions());
-				MySpawnGroupDefinition spawnGroupDefinition = spawnGroupDefinitions.Find(x => x.Id.SubtypeName == spawnGroup);
-				foreach (MySpawnGroupDefinition.SpawnGroupPrefab spawnGroupPrefab in spawnGroupDefinition.Prefabs)
-				{
-					Vector3D prefabSpawnPos = Vector3D.Transform(spawnGroupPrefab.Position, spawnOrigin);
-					MatrixD prefabSpawnMatrix = spawnOrigin;
-					prefabSpawnMatrix.Translation = prefabSpawnPos;
-					SpawnPrefab(spawnGroupPrefab.SubtypeId, prefabSpawnMatrix, options);
-					MyAPIGateway.Parallel.Sleep(1000);
-				}
-			});
-		}
-
-		public static void SpawnPrefab(string prefabToSpawn, MatrixD spawnOrigin, Options options = null)
-		{
-			if (options == null)
-				options = new Options();
+			
 
 			List<MyObjectBuilder_EntityBase> tempList = new List<MyObjectBuilder_EntityBase>();
 			try
@@ -68,9 +26,7 @@ namespace SpawnManager.Tools
 					List<MyObjectBuilder_Cockpit> myCockpitList = new List<MyObjectBuilder_Cockpit>();
 					List<MyObjectBuilder_RemoteControl> myRemoteControlList = new List<MyObjectBuilder_RemoteControl>();
 					MyPrefabDefinition prefab = MyDefinitionManager.Static.GetPrefabDefinition(prefabToSpawn);
-
-					//WeaponSwapper.ProcessPrefab(prefab, options);
-
+					
 					if (prefab.CubeGrids[0] == null)
 						return;
 
@@ -83,19 +39,11 @@ namespace SpawnManager.Tools
 					foreach (MyObjectBuilder_CubeGrid gridBuilder in prefab.CubeGrids)
 					{
 						tempList.Add(gridBuilder);
-
-						options.EntityId = gridBuilder.EntityId;
-						CubeProcessing.GeneralGridSettings(gridBuilder, options);
-
+						
 						foreach (MyObjectBuilder_CubeBlock block in gridBuilder.CubeBlocks)
 						{
 							if (block == null)
 								continue;
-							CubeProcessing.GeneralBlockSettings(block, options);
-
-							Action<MyObjectBuilder_CubeBlock, Options, MyCubeSize> action;
-							CubeProcessing.CubeBlockProcessing.TryGetValue(block.GetType(), out action);
-							action?.Invoke(block, options, gridBuilder.GridSizeEnum);
 
 							if (!cubeGridZero) continue;
 							if (block.GetType() == typeof(MyObjectBuilder_Cockpit)) myCockpitList.Add(block as MyObjectBuilder_Cockpit);
@@ -136,8 +84,6 @@ namespace SpawnManager.Tools
 						cubeGridZero = false;
 					}
 					tempList.ForEach(item => MyAPIGateway.Entities.CreateFromObjectBuilderParallel(item, true));
-					//foreach (MyObjectBuilder_EntityBase item in tempList) MyAPIGateway.Entities.CreateFromObjectBuilderParallel(item, true);
-					//MyAPIGateway.Multiplayer.SendEntitiesCreated(tempList); // may need to uncomment this if entities aren't syncing
 					tempList.Clear();
 					myCockpitList.Clear();
 					myRemoteControlList.Clear();
