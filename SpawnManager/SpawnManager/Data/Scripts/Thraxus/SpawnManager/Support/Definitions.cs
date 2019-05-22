@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Common.ObjectBuilders.Definitions;
 using Sandbox.Definitions;
-using Sandbox.Game;
-using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using SpaceEngineers.Game.Entities.Blocks;
-using SpaceEngineers.Game.ModAPI;
+using SpawnManager.Common.Structs;
 using SpawnManager.Eem;
+using SpawnManager.Tools;
 using VRage.Game;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -397,15 +397,16 @@ namespace SpawnManager.Support
 				}
 				Core.GeneralLog.WriteToLog("Definitions", $"SpawnGroup Definitions Initialized...");
 
-				// causing a crash, need to revisit
-				//foreach (MyPirateAntennaDefinition pirateAntennaDefinition in MyDefinitionManager.Static.GetPirateAntennaDefinitions())
-				//{
-				//	List<string> spawnGroups = new List<string>();
-				//	foreach (MySpawnGroupDefinition mySpawnGroupDefinition in pirateAntennaDefinition.SpawnGroupSampler)
-				//		spawnGroups.Add(mySpawnGroupDefinition.Id.SubtypeName);
-				//	PirateAntennaDefinitions.Add(pirateAntennaDefinition.Name, new PirateAntennaDefinition(pirateAntennaDefinition.SpawnDistance, pirateAntennaDefinition.SpawnTimeMs, pirateAntennaDefinition.FirstSpawnTimeMs, pirateAntennaDefinition.MaxDrones, spawnGroups));
-				//}
-				//Core.GeneralLog.WriteToLog("Definitions", $"PirateAntenna Definitions Initialized...");
+				// was causing a crash?
+				foreach (MyPirateAntennaDefinition pirateAntennaDefinition in MyDefinitionManager.Static.GetPirateAntennaDefinitions())
+				{
+					List<string> spawnGroups = new List<string>();
+					foreach (MySpawnGroupDefinition mySpawnGroupDefinition in pirateAntennaDefinition.SpawnGroupSampler)
+						spawnGroups.Add(mySpawnGroupDefinition.Id.SubtypeName);
+					PirateAntennaDefinitions.Add(pirateAntennaDefinition.Name, new PirateAntennaDefinition(pirateAntennaDefinition.SpawnDistance, pirateAntennaDefinition.SpawnTimeMs, pirateAntennaDefinition.FirstSpawnTimeMs, pirateAntennaDefinition.MaxDrones, spawnGroups));
+				}
+				Core.GeneralLog.WriteToLog("Definitions", $"PirateAntenna Definitions Initialized...");
+
 			}
 			catch (Exception e)
 			{

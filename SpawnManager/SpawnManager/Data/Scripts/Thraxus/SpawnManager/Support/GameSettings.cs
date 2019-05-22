@@ -10,7 +10,10 @@ namespace SpawnManager.Support
             MyAPIGateway.Session.SessionSettings.EnableIngameScripts = true;
             MyAPIGateway.Session.SessionSettings.EnableEncounters = false;
             MyAPIGateway.Session.SessionSettings.EnableDrones = false;
-            if (MyAPIGateway.Session.SessionSettings.SyncDistance <= 3000)
+            MyAPIGateway.Session.SessionSettings.StationVoxelSupport = false;
+            
+
+			if (MyAPIGateway.Session.SessionSettings.SyncDistance <= 3000)
                 MyAPIGateway.Session.SessionSettings.SyncDistance = 10000;
             if (MyAPIGateway.Session.SessionSettings.PiratePCU <= 50000)
 	            MyAPIGateway.Session.SessionSettings.PiratePCU = 100000;

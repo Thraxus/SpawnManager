@@ -74,9 +74,9 @@ namespace SpawnManager.Utilities
 
 		private void WriteLine(string line)
 		{
-			_messageQueue.Enqueue(line);
-			TextWriter.WriteLine(line);
-			TextWriter.Flush();
+			_messageQueue?.Enqueue(line);
+			TextWriter?.WriteLine(line);
+			TextWriter?.Flush();
 		}
 	}
 }

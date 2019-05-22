@@ -82,7 +82,8 @@ namespace SpawnManager.DebugTools
 	    {
 		    const string prefix = "spawnprefab";
 			if (!prefab.StartsWith(prefix)) return;
-		    Options options = new Options { Restock = true };
+			Core.GeneralLog.WriteToLog("SpawnPrefab", $"Prefab:\t{prefab}");
+			Options options = new Options { Restock = true };
 			MatrixD initialMatrixD = MyAPIGateway.Session.Player.Character.WorldMatrix;
 		    initialMatrixD.Translation += initialMatrixD.Forward * 250;
 			PrefabSpawner.SpawnPrefab(prefab.Replace(prefix, "").Trim(), initialMatrixD, options);

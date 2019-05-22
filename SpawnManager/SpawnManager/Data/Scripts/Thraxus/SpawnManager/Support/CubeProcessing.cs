@@ -54,10 +54,10 @@ namespace SpawnManager.Support
 				return $"{OriginalName}\t{NewName}";
 			}
 
-			public PbReplacement(string newName, string oldName, string program)
+			public PbReplacement(string newName, string originalName, string program)
 			{
 				NewName = newName;
-				OriginalName = oldName;
+				OriginalName = originalName;
 				Program = program;
 			}
 		}
@@ -73,9 +73,9 @@ namespace SpawnManager.Support
 
 		public static void GeneralGridSettings(MyObjectBuilder_CubeGrid grid, Options options)
 		{
-			grid.DestructibleBlocks = options.DestructableBlocks;
+			grid.DestructibleBlocks = options.DestructibleBlocks;
 			grid.GridGeneralDamageModifier = options.GeneralDamageModifier;
-			if (options.DisableDampners) grid.DampenersEnabled = false;
+			if (options.DisableDampeners) grid.DampenersEnabled = false;
 			if (options.ForceStatic) grid.IsStatic = true;
 			if (options.ForcePhysics) grid.CreatePhysics = true;
 			if (options.SetAngularVelocity) grid.AngularVelocity = options.AngularVelocity;
@@ -207,9 +207,9 @@ namespace SpawnManager.Support
 			{
 				if (options.PreservePrograms)
 				{
-					//Core.GeneralLog.WriteToLog("ProcessMyProgrammableBlock", $"Entity:\t{options.EntityId}\t{PbPrograms.Count}");
 					List<PbReplacement> tmpPbReplacements;
 					PbReplacement pbReplacement = new PbReplacement(TempPbName, ((MyObjectBuilder_MyProgrammableBlock)block).CustomName, ((MyObjectBuilder_MyProgrammableBlock)block).Program);
+					Core.GeneralLog.WriteToLog("ProcessMyProgrammableBlock", $"Entity: {options.EntityId} - {PbPrograms.Count} - pbReplacement: {pbReplacement.NewName} {pbReplacement.OriginalName}");
 					if (PbPrograms.TryGetValue(options.EntityId, out tmpPbReplacements))
 						PbPrograms[options.EntityId].Add(pbReplacement);
 					else

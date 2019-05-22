@@ -16,8 +16,8 @@ namespace SpawnManager.Support
 	    }
 
 		public bool ClearCargoContainers = false;
-		public bool DestructableBlocks = true;
-		public bool DisableDampners = true;
+		public bool DestructibleBlocks = true;
+		public bool DisableDampeners = true;
 		public bool ForcePhysics = false;
 		public bool ForceStatic = false;
 		public bool IdleTurretMovement = true;
@@ -56,6 +56,15 @@ namespace SpawnManager.Support
 		public MyOwnershipShareModeEnum FactionShareMode = MyOwnershipShareModeEnum.Faction;
 		public Precision CollisionPrecision = Precision.ExtraLoose;
 	    public EnvironmentType Environment = EnvironmentType.Space;
-		
+
+	    /// <inheritdoc />
+	    public override string ToString()
+	    {
+		    return
+			    $"ClearCargoContainers: {ClearCargoContainers} | DestructibleBlocks: {DestructibleBlocks} | DisableDampeners: {DisableDampeners} | ForcePhysics: {ForcePhysics} | ForceStatic: {ForceStatic} " +
+			    $"| IdleTurretMovement: {IdleTurretMovement} | IgnoreCleanup: {IgnoreCleanup} | IgnoreCollisions: {IgnoreCollisions} | PowerDownGrid: {PowerDownGrid} | PreservePrograms: {PreservePrograms} " + 
+			    $"| Restock: {Restock} | SetAngularVelocity: {SetAngularVelocity} | SetFactionShareMode: {SetFactionShareMode} | SetLinearVelocity: {SetLinearVelocity} | SpawnAsWireframe: {SpawnAsWireframe} " + 
+			    $"| SpawnDamaged: {SpawnDamaged} | UpdateAntennaText: {UpdateAntennaText} | UpdateBeaconText: {UpdateBeaconText} | UpdateBeaconBroadcastRadius: {UpdateBeaconBroadcastRadius}";
+	    }
 	}
 }
